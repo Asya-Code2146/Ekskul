@@ -32,7 +32,7 @@ const handleTabChange = (tab) => {
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100/70 text-slate-800 font-sans antialiased">
+  <div class="min-h-screen bg-[#DEDCDC] text-[#191D23] font-sans antialiased selection:bg-[#57707A] selection:text-white">
     <LandingView
       v-if="currentMode === 'landing'"
       @enter-dashboard="handleEnterDashboard"
@@ -60,8 +60,17 @@ const handleTabChange = (tab) => {
             <DashboardView v-if="activeDashboardTab === 'dashboard'" key="dashboard" />
             <EkskulView v-else-if="activeDashboardTab === 'ekskul'" key="ekskul" />
             <AnggotaView v-else-if="activeDashboardTab === 'anggota'" key="anggota" />
-            <JadwalView v-else-if="activeDashboardTab === 'jadwal'" key="jadwal" />
+            <JadwalView v-else-if="activeDashboardTab === 'jadwal' || activeDashboardTab === 'presensi'" key="jadwal" />
             <PrestasiView v-else-if="activeDashboardTab === 'prestasi'" key="prestasi" />
+            <div v-else-if="activeDashboardTab === 'pengaturan'" key="pengaturan" class="bg-white rounded-3xl p-8 border border-[#c8cbd3] shadow-xs">
+              <h2 class="text-xl font-bold text-[#191D23] mb-2">Pengaturan Sistem</h2>
+              <p class="text-xs text-[#57707A]">SIM-EKSKUL SMKN 5 Telkom Banda Aceh versi 1.0.0</p>
+              <div class="mt-6 pt-6 border-t border-slate-100 space-y-3 text-xs text-slate-600">
+                <div>Environment: Production / Cloud</div>
+                <div>Status Database: Terkoneksi (MySQL Railway)</div>
+                <div>Status Front-End: Terkoneksi (Vite + Tailwind CSS)</div>
+              </div>
+            </div>
           </transition>
         </main>
       </div>

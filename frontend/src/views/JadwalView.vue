@@ -83,19 +83,6 @@ const savePresensi = async () => {
   }
 };
 
-const presensiBadge = (status) => {
-  switch (status) {
-    case 'Hadir':
-      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    case 'Izin':
-      return 'bg-blue-50 text-blue-700 border-blue-200';
-    case 'Sakit':
-      return 'bg-amber-50 text-amber-700 border-amber-200';
-    default:
-      return 'bg-red-50 text-red-700 border-red-200';
-  }
-};
-
 onMounted(() => {
   loadData();
 });
@@ -103,14 +90,14 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <div class="flex items-center gap-2 border-b border-slate-200 pb-3">
+    <div class="flex items-center gap-2 border-b border-[#c8cbd3] pb-3">
       <button
         @click="activeSubTab = 'jadwal'"
         :class="[
-          'px-4 py-2 rounded-xl text-sm font-semibold transition cursor-pointer',
+          'px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition cursor-pointer',
           activeSubTab === 'jadwal'
-            ? 'bg-blue-600 text-white shadow-xs'
-            : 'bg-white text-slate-600 hover:bg-slate-100'
+            ? 'bg-[#191D23] text-white shadow-xs'
+            : 'bg-white text-[#57707A] hover:bg-slate-100'
         ]"
       >
         Jadwal Kegiatan ({{ jadwalList.length }})
@@ -118,10 +105,10 @@ onMounted(() => {
       <button
         @click="activeSubTab = 'presensi'"
         :class="[
-          'px-4 py-2 rounded-xl text-sm font-semibold transition cursor-pointer',
+          'px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition cursor-pointer',
           activeSubTab === 'presensi'
-            ? 'bg-blue-600 text-white shadow-xs'
-            : 'bg-white text-slate-600 hover:bg-slate-100'
+            ? 'bg-[#191D23] text-white shadow-xs'
+            : 'bg-white text-[#57707A] hover:bg-slate-100'
         ]"
       >
         Presensi Kehadiran ({{ presensiList.length }})
@@ -129,15 +116,15 @@ onMounted(() => {
     </div>
 
     <div v-if="activeSubTab === 'jadwal'" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs h-fit">
-        <h2 class="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">Tambah Jadwal Baru</h2>
+      <div class="bg-white p-6 rounded-3xl border border-[#c8cbd3] shadow-xs h-fit">
+        <h2 class="text-base font-bold text-[#191D23] pb-3 border-b border-slate-100">Tambah Jadwal Baru</h2>
         <form @submit.prevent="saveJadwal" class="space-y-4 mt-4">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Ekstrakurikuler *</label>
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">Ekstrakurikuler *</label>
             <select
               v-model="formJadwal.id_ekskul"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             >
               <option v-for="e in ekskulList" :key="e.id_ekskul" :value="e.id_ekskul">
                 {{ e.nama_ekskul }}
@@ -146,39 +133,39 @@ onMounted(() => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Tanggal Pelaksanaan *</label>
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">Tanggal Pelaksanaan *</label>
             <input
               v-model="formJadwal.tanggal"
               type="date"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Agenda Kegiatan *</label>
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">Agenda Kegiatan *</label>
             <textarea
               v-model="formJadwal.agenda"
               required
               rows="3"
               placeholder="Contoh: Latihan Rutin & Pemantapan Materi Web Development"
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             ></textarea>
           </div>
 
           <button
             type="submit"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer"
+            class="w-full bg-[#191D23] hover:bg-[#57707A] text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer"
           >
             Simpan Jadwal
           </button>
         </form>
       </div>
 
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+      <div class="lg:col-span-2 bg-white rounded-3xl border border-[#c8cbd3] shadow-xs overflow-hidden flex flex-col">
         <div class="p-5 border-b border-slate-100">
-          <h2 class="text-base font-bold text-slate-900">Daftar Jadwal Kegiatan</h2>
-          <p class="text-xs text-slate-500">Agenda dan kegiatan ekstrakurikuler terjadwal</p>
+          <h2 class="text-base font-bold text-[#191D23]">Daftar Jadwal Kegiatan</h2>
+          <p class="text-xs text-[#57707A]">Agenda dan kegiatan ekstrakurikuler terjadwal</p>
         </div>
 
         <div v-if="isLoading" class="p-12 text-center text-slate-400 text-sm">
@@ -187,7 +174,7 @@ onMounted(() => {
         <div v-else class="overflow-x-auto flex-1">
           <table class="w-full text-left border-collapse min-w-[550px]">
             <thead>
-              <tr class="bg-slate-900 text-white text-xs uppercase font-bold tracking-wider">
+              <tr class="bg-[#191D23] text-white text-xs uppercase font-bold tracking-wider">
                 <th class="py-3 px-4 w-12 text-center">NO</th>
                 <th class="py-3 px-4">TANGGAL</th>
                 <th class="py-3 px-4">EKSTRAKURIKULER</th>
@@ -202,12 +189,12 @@ onMounted(() => {
                 class="hover:bg-slate-50 transition"
               >
                 <td class="py-3.5 px-4 text-center text-xs font-semibold text-slate-400">{{ index + 1 }}</td>
-                <td class="py-3.5 px-4 font-semibold text-slate-800 text-xs sm:text-sm whitespace-nowrap">
+                <td class="py-3.5 px-4 font-semibold text-[#191D23] text-xs sm:text-sm whitespace-nowrap">
                   {{ item.tanggal }}
                 </td>
                 <td class="py-3.5 px-4">
-                  <div class="font-bold text-slate-900 text-sm">{{ item.nama_ekskul }}</div>
-                  <div class="text-[11px] text-slate-400">{{ item.kategori }}</div>
+                  <div class="font-bold text-[#191D23] text-sm">{{ item.nama_ekskul }}</div>
+                  <div class="text-[11px] text-[#57707A]">{{ item.kategori }}</div>
                 </td>
                 <td class="py-3.5 px-4 text-slate-700 text-xs sm:text-sm">
                   {{ item.agenda }}
@@ -233,15 +220,15 @@ onMounted(() => {
     </div>
 
     <div v-else class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs h-fit">
-        <h2 class="text-base font-bold text-slate-900 pb-3 border-b border-slate-100">Catat Presensi Siswa</h2>
+      <div class="bg-white p-6 rounded-3xl border border-[#c8cbd3] shadow-xs h-fit">
+        <h2 class="text-base font-bold text-[#191D23] pb-3 border-b border-slate-100">Catat Presensi Siswa</h2>
         <form @submit.prevent="savePresensi" class="space-y-4 mt-4">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Pilih Jadwal Kegiatan *</label>
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">Pilih Jadwal Kegiatan *</label>
             <select
               v-model="formPresensi.id_jadwal"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             >
               <option v-for="j in jadwalList" :key="j.id_jadwal" :value="j.id_jadwal">
                 {{ j.nama_ekskul }} - {{ j.tanggal }} ({{ j.agenda }})
@@ -250,11 +237,11 @@ onMounted(() => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Pilih Anggota Siswa *</label>
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">Pilih Anggota Siswa *</label>
             <select
               v-model="formPresensi.id_anggota"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             >
               <option v-for="a in anggotaList" :key="a.id_anggota" :value="a.id_anggota">
                 {{ a.nama_lengkap }} ({{ a.nama_ekskul }})
@@ -263,11 +250,11 @@ onMounted(() => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Status Kehadiran *</label>
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">Status Kehadiran *</label>
             <select
               v-model="formPresensi.status_kehadiran"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             >
               <option value="Hadir">Hadir</option>
               <option value="Izin">Izin</option>
@@ -278,17 +265,17 @@ onMounted(() => {
 
           <button
             type="submit"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer"
+            class="w-full bg-[#191D23] hover:bg-[#57707A] text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer"
           >
             Simpan Presensi
           </button>
         </form>
       </div>
 
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+      <div class="lg:col-span-2 bg-white rounded-3xl border border-[#c8cbd3] shadow-xs overflow-hidden flex flex-col">
         <div class="p-5 border-b border-slate-100">
-          <h2 class="text-base font-bold text-slate-900">Rekap Presensi Kegiatan</h2>
-          <p class="text-xs text-slate-500">Log kehadiran anggota dalam sesi kegiatan</p>
+          <h2 class="text-base font-bold text-[#191D23]">Rekap Presensi Kegiatan</h2>
+          <p class="text-xs text-[#57707A]">Log kehadiran anggota dalam sesi kegiatan</p>
         </div>
 
         <div v-if="isLoading" class="p-12 text-center text-slate-400 text-sm">
@@ -297,7 +284,7 @@ onMounted(() => {
         <div v-else class="overflow-x-auto flex-1">
           <table class="w-full text-left border-collapse min-w-[550px]">
             <thead>
-              <tr class="bg-slate-900 text-white text-xs uppercase font-bold tracking-wider">
+              <tr class="bg-[#191D23] text-white text-xs uppercase font-bold tracking-wider">
                 <th class="py-3 px-4 w-12 text-center">NO</th>
                 <th class="py-3 px-4">SISWA</th>
                 <th class="py-3 px-4">EKSTRAKURIKULER</th>
@@ -313,23 +300,18 @@ onMounted(() => {
               >
                 <td class="py-3.5 px-4 text-center text-xs font-semibold text-slate-400">{{ index + 1 }}</td>
                 <td class="py-3.5 px-4">
-                  <div class="font-bold text-slate-900 text-sm">{{ item.nama_lengkap }}</div>
-                  <div class="text-xs text-slate-500">NISN: {{ item.nisn }} • {{ item.kelas }}</div>
+                  <div class="font-bold text-[#191D23] text-sm">{{ item.nama_lengkap }}</div>
+                  <div class="text-xs text-[#57707A]">NISN: {{ item.nisn }} • {{ item.kelas }}</div>
                 </td>
-                <td class="py-3.5 px-4 font-semibold text-slate-800 text-sm">
+                <td class="py-3.5 px-4 font-semibold text-[#191D23] text-sm">
                   {{ item.nama_ekskul }}
                 </td>
                 <td class="py-3.5 px-4">
                   <div class="text-xs font-medium text-slate-800">{{ item.agenda }}</div>
-                  <div class="text-[11px] text-slate-400">{{ item.tanggal }}</div>
+                  <div class="text-[11px] text-[#57707A]">{{ item.tanggal }}</div>
                 </td>
                 <td class="py-3.5 px-4 text-center">
-                  <span
-                    :class="[
-                      'border text-[11px] font-semibold px-2.5 py-0.5 rounded-full inline-block',
-                      presensiBadge(item.status_kehadiran)
-                    ]"
-                  >
+                  <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#57707A] text-white">
                     {{ item.status_kehadiran }}
                   </span>
                 </td>

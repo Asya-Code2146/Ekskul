@@ -9,7 +9,6 @@ const showModal = ref(false);
 const isEditMode = ref(false);
 const errorMessage = ref('');
 const searchQuery = ref('');
-const selectedKategori = ref('Semua');
 const sortBy = ref('terbaru');
 
 const form = ref({
@@ -38,6 +37,13 @@ const fetchInitialData = async () => {
   }
 };
 
+const scheduleData = {
+  1: { hari: 'Sabtu', jam: '09:00 - 12:00', lokasi: 'Lab Komputer RPL' },
+  2: { hari: 'Senin', jam: '16:00 - 18:00', lokasi: 'Lapangan Utama' },
+  3: { hari: 'Selasa', jam: '15:30 - 17:30', lokasi: 'Lapangan Futsal' },
+  4: { hari: 'Jumat', jam: '14:00 - 16:30', lokasi: 'Lab IoT & Robotika' }
+};
+
 const filteredEkskul = computed(() => {
   let list = [...ekskulList.value];
 
@@ -47,10 +53,6 @@ const filteredEkskul = computed(() => {
       item.nama_ekskul.toLowerCase().includes(q) ||
       (item.nama_pembina && item.nama_pembina.toLowerCase().includes(q))
     );
-  }
-
-  if (selectedKategori.value !== 'Semua') {
-    list = list.filter((item) => item.kategori === selectedKategori.value);
   }
 
   if (sortBy.value === 'nama') {
@@ -120,21 +122,6 @@ const removeEkskul = async (id, nama) => {
   }
 };
 
-const badgeClass = (kategori) => {
-  switch (kategori) {
-    case 'Teknologi':
-      return 'bg-blue-50 text-blue-700 border-blue-200';
-    case 'Olahraga':
-      return 'bg-emerald-50 text-emerald-700 border-emerald-200';
-    case 'Seni':
-      return 'bg-purple-50 text-purple-700 border-purple-200';
-    case 'Kepemimpinan':
-      return 'bg-amber-50 text-amber-700 border-amber-200';
-    default:
-      return 'bg-slate-50 text-slate-700 border-slate-200';
-  }
-};
-
 onMounted(() => {
   fetchInitialData();
 });
@@ -142,156 +129,142 @@ onMounted(() => {
 
 <template>
   <div class="space-y-6">
-    <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-      <div>
-        <h2 class="text-lg sm:text-xl font-bold text-slate-900">Daftar Ekstrakurikuler</h2>
-        <p class="text-xs sm:text-sm text-slate-500">Kelola informasi divisi ekstrakurikuler SMKN 5 Telkom Banda Aceh.</p>
+    <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#c8cbd3] shadow-xs">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 gap-4">
+        <h2 class="text-xl sm:text-2xl font-black text-[#191D23]">Daftar Ekstrakurikuler</h2>
+        <button
+          @click="openCreateModal"
+          class="inline-flex items-center justify-center gap-2 bg-[#191D23] hover:bg-[#57707A] text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 cursor-pointer shrink-0"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Tambah Ekstrakurikuler</span>
+        </button>
       </div>
-      <button
-        @click="openCreateModal"
-        class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2.5 rounded-xl text-sm transition shadow-sm hover:shadow active:scale-95 cursor-pointer shrink-0"
-      >
-        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-        </svg>
-        <span>Tambah Ekstrakurikuler</span>
-      </button>
-    </div>
 
-    <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-xs space-y-3">
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
         <div class="relative flex-1 max-w-md">
           <input
             v-model="searchQuery"
             type="text"
-            placeholder="Cari nama ekstrakurikuler atau pembina..."
-            class="w-full pl-9 pr-4 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition bg-slate-50/50"
+            placeholder="Cari ekstrakurikuler..."
+            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-[#c8cbd3] text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#57707A] bg-[#f8f9fa]"
           />
-          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg class="w-4 h-4 text-[#7B919C] absolute left-3.5 top-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </div>
 
         <div class="flex items-center gap-2 self-end sm:self-auto">
+          <span class="text-xs text-[#57707A] font-medium hidden sm:inline">Urutkan</span>
           <select
             v-model="sortBy"
-            class="px-3 py-2 rounded-xl border border-slate-200 text-xs sm:text-sm bg-white font-medium text-slate-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="px-4 py-2 rounded-xl border border-[#c8cbd3] text-xs sm:text-sm bg-white font-medium text-[#191D23] focus:outline-none focus:ring-2 focus:ring-[#57707A]"
           >
-            <option value="terbaru">Urutkan: Terbaru</option>
-            <option value="nama">Urutkan: Nama A-Z</option>
+            <option value="terbaru">Terbaru</option>
+            <option value="nama">Nama A-Z</option>
           </select>
         </div>
       </div>
 
-      <div class="flex items-center gap-1.5 overflow-x-auto pb-1 pt-1 text-xs">
-        <button
-          @click="selectedKategori = 'Semua'"
-          :class="[
-            'px-3 py-1.5 rounded-lg font-medium transition shrink-0 cursor-pointer',
-            selectedKategori === 'Semua' ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          ]"
-        >
-          Semua ({{ ekskulList.length }})
-        </button>
-        <button
-          v-for="kat in kategoriOptions"
-          :key="kat"
-          @click="selectedKategori = kat"
-          :class="[
-            'px-3 py-1.5 rounded-lg font-medium transition shrink-0 cursor-pointer',
-            selectedKategori === kat ? 'bg-blue-600 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-          ]"
-        >
-          {{ kat }}
-        </button>
+      <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm mb-4">
+        {{ errorMessage }}
       </div>
-    </div>
 
-    <div v-if="errorMessage" class="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-xl text-sm">
-      {{ errorMessage }}
-    </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
-      <div v-if="isLoading" class="p-12 text-center text-slate-400 text-sm">
+      <div v-if="isLoading" class="p-12 text-center text-[#7B919C] text-sm">
         Memuat data ekstrakurikuler...
       </div>
-      <div v-else>
-        <div class="overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[640px]">
-            <thead>
-              <tr class="bg-slate-900 text-white text-xs uppercase font-bold tracking-wider">
-                <th class="py-3.5 px-4 w-12 text-center">NO</th>
-                <th class="py-3.5 px-4">NAMA EKSTRAKURIKULER</th>
-                <th class="py-3.5 px-4">PEMBINA / PEMBIMBING</th>
-                <th class="py-3.5 px-4">KATEGORI</th>
-                <th class="py-3.5 px-4 text-center">TOTAL ANGGOTA</th>
-                <th class="py-3.5 px-4 text-center w-36">AKSI</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 text-sm">
-              <tr
-                v-for="(item, index) in filteredEkskul"
-                :key="item.id_ekskul"
-                class="hover:bg-blue-50/30 transition group"
-              >
-                <td class="py-3.5 px-4 text-center font-semibold text-slate-400 text-xs">{{ index + 1 }}</td>
-                <td class="py-3.5 px-4 font-bold text-slate-900">
-                  <div class="text-sm font-semibold text-slate-900">{{ item.nama_ekskul }}</div>
-                </td>
-                <td class="py-3.5 px-4">
-                  <div class="font-medium text-slate-800 text-sm">{{ item.nama_pembina }}</div>
-                  <div class="text-xs text-slate-400">NIP. {{ item.nip || '-' }}</div>
-                </td>
-                <td class="py-3.5 px-4">
-                  <span
-                    :class="[
-                      'border text-xs font-semibold px-2.5 py-1 rounded-full inline-block',
-                      badgeClass(item.kategori)
-                    ]"
+      <div v-else class="overflow-x-auto rounded-2xl border border-[#c8cbd3]">
+        <table class="w-full text-left border-collapse min-w-[700px]">
+          <thead>
+            <tr class="bg-[#191D23] text-white text-[11px] sm:text-xs uppercase font-extrabold tracking-wider">
+              <th class="py-3.5 px-4 w-12 text-center">NO</th>
+              <th class="py-3.5 px-4">NAMA EKSTRAKURIKULER</th>
+              <th class="py-3.5 px-4">PEMBIMBING</th>
+              <th class="py-3.5 px-4">HARI</th>
+              <th class="py-3.5 px-4">JAM</th>
+              <th class="py-3.5 px-4">LOKASI</th>
+              <th class="py-3.5 px-4 text-center w-36">AKSI</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
+            <tr
+              v-for="(item, index) in filteredEkskul"
+              :key="item.id_ekskul"
+              class="hover:bg-slate-50/80 transition"
+            >
+              <td class="py-4 px-4 text-center font-semibold text-slate-400">{{ index + 1 }}</td>
+              <td class="py-4 px-4 font-bold text-[#191D23]">
+                {{ item.nama_ekskul }}
+              </td>
+              <td class="py-4 px-4 text-slate-700 font-medium">
+                {{ item.nama_pembina }}
+              </td>
+              <td class="py-4 px-4 text-slate-600">
+                {{ scheduleData[item.id_ekskul]?.hari || 'Senin' }}
+              </td>
+              <td class="py-4 px-4 text-slate-600">
+                {{ scheduleData[item.id_ekskul]?.jam || '15:30 - 17:30' }}
+              </td>
+              <td class="py-4 px-4 text-slate-600">
+                {{ scheduleData[item.id_ekskul]?.lokasi || 'Lab Komputer' }}
+              </td>
+              <td class="py-4 px-4 text-center">
+                <div class="flex items-center justify-center gap-2">
+                  <button
+                    @click="openEditModal(item)"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#57707A] hover:bg-[#191D23] text-white font-semibold text-xs transition cursor-pointer"
                   >
-                    {{ item.kategori }}
-                  </span>
-                </td>
-                <td class="py-3.5 px-4 text-center font-bold text-slate-700">
-                  <span class="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2.5 py-0.5 rounded-full text-xs">
-                    {{ item.total_anggota || 0 }} Siswa
-                  </span>
-                </td>
-                <td class="py-3.5 px-4 text-center">
-                  <div class="flex items-center justify-center gap-1.5">
-                    <button
-                      @click="openEditModal(item)"
-                      class="px-2.5 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-xs transition cursor-pointer"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      @click="removeEkskul(item.id_ekskul, item.nama_ekskul)"
-                      class="px-2.5 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 font-semibold text-xs transition cursor-pointer"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-              <tr v-if="filteredEkskul.length === 0">
-                <td colspan="6" class="py-12 text-center text-slate-400 text-sm">
-                  Tidak ada ekstrakurikuler yang sesuai dengan pencarian atau filter.
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                    <span>Edit</span>
+                  </button>
+                  <button
+                    @click="removeEkskul(item.id_ekskul, item.nama_ekskul)"
+                    class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-red-600 hover:bg-red-700 text-white font-semibold text-xs transition cursor-pointer"
+                  >
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span>Hapus</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr v-if="filteredEkskul.length === 0">
+              <td colspan="7" class="py-12 text-center text-slate-400 text-sm">
+                Tidak ada data ekstrakurikuler yang sesuai.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-between pt-6 text-xs text-[#57707A] gap-4">
+        <div class="flex items-center gap-1">
+          <button class="px-2.5 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">&lt;</button>
+          <button class="px-3 py-1 rounded-md bg-[#191D23] text-white font-bold">1</button>
+          <button class="px-3 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">2</button>
+          <button class="px-3 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">3</button>
+          <button class="px-2.5 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">&gt;</button>
         </div>
+        <div class="text-right">10 per halaman</div>
+      </div>
+
+      <div class="text-center pt-8 border-t border-slate-100 text-xs text-[#7B919C] mt-6">
+        © 2026 SMKN 5 Telkom Banda Aceh. All rights reserved.
       </div>
     </div>
 
     <div
       v-if="showModal"
-      class="fixed inset-0 z-50 bg-slate-950/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all"
+      class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all"
     >
-      <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 w-full max-w-md p-6 transform transition-all animate-in fade-in zoom-in-95 duration-200">
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
-          <h3 class="text-base sm:text-lg font-bold text-slate-900">
+      <div class="bg-white rounded-3xl shadow-2xl border border-[#c8cbd3] w-full max-w-md p-6">
+        <div class="flex items-center justify-between pb-4 border-b border-[#DEDCDC]">
+          <h3 class="text-base sm:text-lg font-bold text-[#191D23]">
             {{ isEditMode ? 'Edit Ekstrakurikuler' : 'Tambah Ekstrakurikuler Baru' }}
           </h3>
           <button
@@ -306,26 +279,26 @@ onMounted(() => {
 
         <form @submit.prevent="saveEkskul" class="space-y-4 mt-4">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">
               Nama Ekstrakurikuler *
             </label>
             <input
               v-model="form.nama_ekskul"
               type="text"
               required
-              placeholder="Contoh: Telkom Coding Club"
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition"
+              placeholder="Contoh: Basketball"
+              class="w-full border border-[#989DAA]/50 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             />
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">
               Kategori Bidang *
             </label>
             <select
               v-model="form.kategori"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition bg-white"
+              class="w-full border border-[#989DAA]/50 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white"
             >
               <option v-for="kat in kategoriOptions" :key="kat" :value="kat">
                 {{ kat }}
@@ -334,31 +307,31 @@ onMounted(() => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-              Pembina Penanggung Jawab *
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">
+              Pembina / Pembimbing *
             </label>
             <select
               v-model="form.id_pembina"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition bg-white"
+              class="w-full border border-[#989DAA]/50 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white"
             >
               <option v-for="p in pembinaList" :key="p.id_pembina" :value="p.id_pembina">
-                {{ p.nama_pembina }} (NIP. {{ p.nip }})
+                {{ p.nama_pembina }}
               </option>
             </select>
           </div>
 
-          <div class="flex justify-end gap-2 pt-4 border-t border-slate-100">
+          <div class="flex justify-end gap-2 pt-4 border-t border-[#DEDCDC]">
             <button
               type="button"
               @click="closeModal"
-              class="px-4 py-2 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50 transition cursor-pointer"
+              class="px-5 py-2 rounded-full border border-[#989DAA] text-[#191D23] text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
-              class="px-5 py-2 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 shadow-md shadow-blue-500/20 transition cursor-pointer"
+              class="px-6 py-2 rounded-full bg-[#191D23] text-white text-xs font-semibold hover:bg-[#57707A] transition cursor-pointer"
             >
               {{ isEditMode ? 'Simpan Perubahan' : 'Simpan Data' }}
             </button>

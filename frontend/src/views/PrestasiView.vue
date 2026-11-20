@@ -67,28 +67,28 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs h-fit">
+      <div class="bg-white p-6 rounded-3xl border border-[#c8cbd3] shadow-xs h-fit">
         <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
-          <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
+          <div class="w-8 h-8 rounded-xl bg-[#57707A]/15 text-[#57707A] flex items-center justify-center">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" />
             </svg>
           </div>
           <div>
-            <h2 class="text-base font-bold text-slate-900 leading-tight">Input Prestasi Siswa</h2>
-            <p class="text-xs text-slate-500">Catat capaian kejuaraan atau kompetisi</p>
+            <h2 class="text-base font-bold text-[#191D23] leading-tight">Input Prestasi Siswa</h2>
+            <p class="text-xs text-[#57707A]">Catat capaian kejuaraan atau kompetisi</p>
           </div>
         </div>
 
         <form @submit.prevent="savePrestasi" class="space-y-4 mt-5">
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">
               Pilih Siswa Berprestasi *
             </label>
             <select
               v-model="form.nisn"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             >
               <option v-for="s in siswaList" :key="s.nisn" :value="s.nisn">
                 {{ s.nama_lengkap }} ({{ s.kelas }})
@@ -97,13 +97,13 @@ onMounted(() => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">
               Ekstrakurikuler *
             </label>
             <select
               v-model="form.id_ekskul"
               required
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-600"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             >
               <option v-for="e in ekskulList" :key="e.id_ekskul" :value="e.id_ekskul">
                 {{ e.nama_ekskul }}
@@ -112,7 +112,7 @@ onMounted(() => {
           </div>
 
           <div>
-            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+            <label class="block text-xs font-bold text-[#191D23] uppercase tracking-wider mb-1.5">
               Nama Prestasi / Peringkat *
             </label>
             <textarea
@@ -120,23 +120,23 @@ onMounted(() => {
               required
               rows="3"
               placeholder="Contoh: Juara 1 LKS Web Technologies Tingkat Provinsi Aceh"
-              class="w-full border border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-600"
+              class="w-full border border-[#c8cbd3] rounded-xl px-3.5 py-2.5 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-[#57707A]"
             ></textarea>
           </div>
 
           <button
             type="submit"
-            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer"
+            class="w-full bg-[#191D23] hover:bg-[#57707A] text-white font-semibold py-2.5 rounded-xl text-sm transition shadow-sm cursor-pointer"
           >
             Simpan Prestasi
           </button>
         </form>
       </div>
 
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden flex flex-col">
+      <div class="lg:col-span-2 bg-white rounded-3xl border border-[#c8cbd3] shadow-xs overflow-hidden flex flex-col">
         <div class="p-5 border-b border-slate-100">
-          <h2 class="text-base font-bold text-slate-900">Rekapitulasi Prestasi Ekskul</h2>
-          <p class="text-xs text-slate-500">Daftar penghargaan yang diraih oleh siswa SMKN 5 Telkom</p>
+          <h2 class="text-base font-bold text-[#191D23]">Rekapitulasi Prestasi Ekskul</h2>
+          <p class="text-xs text-[#57707A]">Daftar penghargaan yang diraih oleh siswa SMKN 5 Telkom</p>
         </div>
 
         <div v-if="isLoading" class="p-12 text-center text-slate-400 text-sm">
@@ -145,7 +145,7 @@ onMounted(() => {
         <div v-else class="overflow-x-auto flex-1">
           <table class="w-full text-left border-collapse min-w-[550px]">
             <thead>
-              <tr class="bg-slate-900 text-white text-xs uppercase font-bold tracking-wider">
+              <tr class="bg-[#191D23] text-white text-xs uppercase font-bold tracking-wider">
                 <th class="py-3 px-4 w-12 text-center">NO</th>
                 <th class="py-3 px-4">SISWA</th>
                 <th class="py-3 px-4">EKSTRAKURIKULER</th>
@@ -161,16 +161,16 @@ onMounted(() => {
               >
                 <td class="py-3.5 px-4 text-center text-xs font-semibold text-slate-400">{{ index + 1 }}</td>
                 <td class="py-3.5 px-4">
-                  <div class="font-bold text-slate-900 text-sm">{{ item.nama_lengkap }}</div>
-                  <div class="text-xs text-slate-500">{{ item.kelas }} • {{ item.kode_jurusan }}</div>
+                  <div class="font-bold text-[#191D23] text-sm">{{ item.nama_lengkap }}</div>
+                  <div class="text-xs text-[#57707A]">{{ item.kelas }} • {{ item.kode_jurusan }}</div>
                 </td>
                 <td class="py-3.5 px-4">
-                  <span class="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                  <span class="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-[#57707A]/15 text-[#57707A]">
                     {{ item.nama_ekskul }}
                   </span>
                 </td>
                 <td class="py-3.5 px-4">
-                  <div class="font-semibold text-slate-800 text-sm flex items-center gap-1.5">
+                  <div class="font-semibold text-[#191D23] text-sm flex items-center gap-1.5">
                     <span class="text-amber-500">★</span>
                     <span>{{ item.peringkat }}</span>
                   </div>
