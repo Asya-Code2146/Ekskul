@@ -187,9 +187,10 @@ onMounted(() => {
         <img
           src="/images/gedung-smkn5.jpg"
           alt="Gedung SMKN 5 Telkom Banda Aceh"
-          class="absolute inset-0 w-full h-full object-cover object-center"
+          class="absolute inset-0 w-full h-full object-cover object-center filter saturate-[0.55] brightness-[0.88] contrast-[0.95]"
         />
-        <div class="absolute inset-0 bg-gradient-to-r from-[#191D23]/90 via-[#191D23]/60 to-black/25"></div>
+        <div class="absolute inset-0 bg-[#35464f]/45 mix-blend-multiply"></div>
+        <div class="absolute inset-0 bg-gradient-to-r from-[#191D23]/85 via-[#233138]/60 to-[#191D23]/35"></div>
 
         <div class="relative z-10 w-full p-6 sm:p-10 lg:p-14 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
           <div class="lg:col-span-7 space-y-5 text-left">
@@ -218,11 +219,13 @@ onMounted(() => {
               </button>
               <button
                 @click="scrollToSection('tentang')"
-                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-black/25 hover:bg-black/40 text-white border border-white/30 backdrop-blur-xs font-semibold text-sm px-6 py-3 rounded-full transition cursor-pointer active:scale-95"
+                class="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-black/20 hover:bg-black/35 text-white border border-white/35 backdrop-blur-xs font-semibold text-sm px-6 py-3 rounded-full transition cursor-pointer active:scale-95"
               >
-                <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24">
-                  <path d="M8 5v14l11-7z"/>
-                </svg>
+                <span class="w-4 h-4 rounded-full border border-white/80 flex items-center justify-center">
+                  <svg class="w-2 h-2 fill-white ml-0.5" viewBox="0 0 24 24">
+                    <path d="M8 5v14l11-7z"/>
+                  </svg>
+                </span>
                 <span>Pelajari Lebih Lanjut</span>
               </button>
             </div>
@@ -231,10 +234,10 @@ onMounted(() => {
           <div class="lg:col-span-5 space-y-3">
             <div
               @click="scrollToSection('ekskul')"
-              class="p-4 rounded-2xl bg-[#191D23]/70 hover:bg-[#191D23]/85 backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-between gap-4 transition duration-200 cursor-pointer group"
+              class="p-4 rounded-2xl bg-[#191D23]/60 hover:bg-[#191D23]/75 backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-between gap-4 transition duration-200 cursor-pointer group"
             >
               <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-white/15 text-white flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/15 text-white flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-slate-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                   </svg>
@@ -251,10 +254,10 @@ onMounted(() => {
 
             <div
               @click="scrollToSection('tentang')"
-              class="p-4 rounded-2xl bg-[#191D23]/70 hover:bg-[#191D23]/85 backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-between gap-4 transition duration-200 cursor-pointer group"
+              class="p-4 rounded-2xl bg-[#191D23]/60 hover:bg-[#191D23]/75 backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-between gap-4 transition duration-200 cursor-pointer group"
             >
               <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-white/15 text-white flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/15 text-white flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-slate-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
                   </svg>
@@ -271,10 +274,10 @@ onMounted(() => {
 
             <div
               @click="scrollToSection('dokumentasi')"
-              class="p-4 rounded-2xl bg-[#191D23]/70 hover:bg-[#191D23]/85 backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-between gap-4 transition duration-200 cursor-pointer group"
+              class="p-4 rounded-2xl bg-[#191D23]/60 hover:bg-[#191D23]/75 backdrop-blur-md border border-white/20 shadow-xl flex items-center justify-between gap-4 transition duration-200 cursor-pointer group"
             >
               <div class="flex items-center gap-3.5">
-                <div class="w-10 h-10 rounded-xl bg-white/15 text-white flex items-center justify-center shrink-0">
+                <div class="w-10 h-10 rounded-xl bg-white/10 border border-white/15 text-white flex items-center justify-center shrink-0">
                   <svg class="w-5 h-5 text-slate-100" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
