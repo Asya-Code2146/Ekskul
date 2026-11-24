@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import api from '../services/api.js';
 
 const emit = defineEmits(['enter-dashboard', 'register-ekskul']);
@@ -17,6 +17,102 @@ const regForm = ref({
   id_ekskul: '',
   id_tahun_ajaran: '',
   jabatan: 'Anggota'
+});
+
+const showAllEkskulModal = ref(false);
+const catalogCategoryFilter = ref('Semua');
+const catalogSearch = ref('');
+
+const showAllDokumentasiModal = ref(false);
+const selectedDokumentasiCategory = ref('Semua');
+
+const dokumentasiList = ref([
+  {
+    id: 1,
+    judul: 'Juara 1 LKS Web Technologies Tingkat Provinsi',
+    kategori: 'Prestasi',
+    tanggal: '12 Oktober 2026',
+    deskripsi: 'Siswa SMKN 5 Telkom meraih medali emas pada ajang Lomba Kompetensi Siswa (LKS) bidang Web Technologies.',
+    gambar: '/images/gedung-smkn5.jpg'
+  },
+  {
+    id: 2,
+    judul: 'Bootcamp & Workshop Full-Stack Vue.js & Express API',
+    kategori: 'Workshop',
+    tanggal: '21 November 2026',
+    deskripsi: 'Pelatihan intensif rekayasa perangkat lunak dan pemrograman modern untuk anggota Telkom Coding Club.',
+    gambar: '/images/gedung-smkn5.jpg'
+  },
+  {
+    id: 3,
+    judul: 'Latihan Taktik & Uji Coba Tim Futsal Telkom FC',
+    kategori: 'Olahraga',
+    tanggal: '15 November 2026',
+    deskripsi: 'Persiapan kejuaraan futsal antar pelajar tingkat kota di Lapangan Futsal Kick-Off Lampineung.',
+    gambar: '/images/gedung-smkn5.jpg'
+  },
+  {
+    id: 4,
+    judul: 'Upacara Pengibaran Bendera Pasukan Paskibra SMKN 5',
+    kategori: 'Kepemimpinan',
+    tanggal: '17 Agustus 2026',
+    deskripsi: 'Kedisiplinan dan kekompakan pleton Paskibraka SMKN 5 Telkom saat upacara peringatan kemerdekaan.',
+    gambar: '/images/gedung-smkn5.jpg'
+  },
+  {
+    id: 5,
+    judul: 'Kontes Robotika Cerdas & Internet of Things (IoT)',
+    kategori: 'Prestasi',
+    tanggal: '28 Oktober 2026',
+    deskripsi: 'Inovasi robot pemilah sampah otomatis karya siswa Lab Robotika & IoT SMKN 5 Telkom.',
+    gambar: '/images/gedung-smkn5.jpg'
+  },
+  {
+    id: 6,
+    judul: 'Pelatihan Jurnalistik, Fotografi & Desain Publikasi',
+    kategori: 'Workshop',
+    tanggal: '05 November 2026',
+    deskripsi: 'Mengasah kemampuan penulisan berita, peliputan acara, dan fotografi jurnalistik sekolah.',
+    gambar: '/images/gedung-smkn5.jpg'
+  },
+  {
+    id: 7,
+    judul: 'Kajian Rohis & Tadarus Bersama Masjid Al-Kautsar',
+    kategori: 'Keagamaan',
+    tanggal: '08 November 2026',
+    deskripsi: 'Pembinaan karakter spiritual, akhlak mulia, dan kebersamaan remaja masjid sekolah.',
+    gambar: '/images/gedung-smkn5.jpg'
+  },
+  {
+    id: 8,
+    judul: 'Latihan Gabungan Pramuka Penegak Bantara',
+    kategori: 'Kepemimpinan',
+    tanggal: '01 November 2026',
+    deskripsi: 'Pengembaraan dan uji kecakapan umum (SKU) anggota pramuka gugus depan SMKN 5 Telkom.',
+    gambar: '/images/gedung-smkn5.jpg'
+  }
+]);
+
+const filteredCatalogEkskul = computed(() => {
+  return ekskulList.value.filter((item) => {
+    const matchCat =
+      catalogCategoryFilter.value === 'Semua' ||
+      item.kategori.toLowerCase() === catalogCategoryFilter.value.toLowerCase();
+    const matchSearch =
+      catalogSearch.value.trim() === '' ||
+      item.nama_ekskul.toLowerCase().includes(catalogSearch.value.toLowerCase()) ||
+      (item.nama_pembina && item.nama_pembina.toLowerCase().includes(catalogSearch.value.toLowerCase()));
+    return matchCat && matchSearch;
+  });
+});
+
+const filteredDokumentasi = computed(() => {
+  if (selectedDokumentasiCategory.value === 'Semua') {
+    return dokumentasiList.value;
+  }
+  return dokumentasiList.value.filter(
+    (d) => d.kategori.toLowerCase() === selectedDokumentasiCategory.value.toLowerCase()
+  );
 });
 
 const loadLandingData = async () => {
@@ -364,7 +460,7 @@ onMounted(() => {
 
       <div class="text-center mt-10">
         <button
-          @click="emit('enter-dashboard')"
+          @click="showAllEkskulModal = true"
           class="inline-flex items-center gap-2 px-6 py-3 rounded-full border-2 border-[#191D23] text-[#191D23] font-bold text-xs sm:text-sm hover:bg-[#191D23] hover:text-white transition cursor-pointer"
         >
           <span>Lihat Semua Ekstrakurikuler</span>
@@ -423,7 +519,7 @@ onMounted(() => {
 
             <div class="pt-2 text-center sm:text-left">
               <button
-                @click="emit('enter-dashboard')"
+                @click="showAllDokumentasiModal = true"
                 class="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border-2 border-[#191D23] text-[#191D23] font-bold text-xs sm:text-sm hover:bg-[#191D23] hover:text-white transition cursor-pointer"
               >
                 <span>Lihat Semua Dokumentasi</span>
@@ -704,6 +800,192 @@ onMounted(() => {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div
+      v-if="showAllEkskulModal"
+      class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all"
+    >
+      <div class="bg-white rounded-3xl shadow-2xl border border-[#c8cbd3] w-full max-w-4xl max-h-[90vh] flex flex-col p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between pb-4 border-b border-[#DEDCDC]">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-[#57707A]">KATALOG RESMI</div>
+            <h3 class="text-lg sm:text-xl font-black text-[#191D23]">Seluruh Ekstrakurikuler SMKN 5 Telkom</h3>
+          </div>
+          <button
+            @click="showAllEkskulModal = false"
+            class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="py-4 space-y-3">
+          <input
+            v-model="catalogSearch"
+            type="text"
+            placeholder="Cari ekstrakurikuler atau nama pembimbing..."
+            class="w-full px-4 py-2.5 rounded-xl border border-[#c8cbd3] text-xs sm:text-sm bg-[#f8f9fa] focus:outline-none focus:ring-2 focus:ring-[#57707A]"
+          />
+
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <button
+              v-for="cat in ['Semua', 'Teknologi', 'Olahraga', 'Kepemimpinan', 'Seni', 'Keagamaan']"
+              :key="cat"
+              @click="catalogCategoryFilter = cat"
+              :class="[
+                'px-3.5 py-1.5 rounded-lg font-bold transition cursor-pointer shrink-0',
+                catalogCategoryFilter === cat
+                  ? 'bg-[#191D23] text-white shadow-xs'
+                  : 'bg-slate-100 text-[#57707A] hover:bg-slate-200'
+              ]"
+            >
+              {{ cat }}
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pr-1">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div
+              v-for="item in filteredCatalogEkskul"
+              :key="item.id_ekskul"
+              class="rounded-2xl border border-[#c8cbd3] overflow-hidden bg-white hover:shadow-md transition flex flex-col justify-between"
+            >
+              <div>
+                <div class="h-32 bg-[#57707A] relative overflow-hidden">
+                  <img
+                    src="/images/gedung-smkn5.jpg"
+                    :alt="item.nama_ekskul"
+                    class="w-full h-full object-cover"
+                  />
+                  <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                  <span class="absolute top-2.5 left-2.5 bg-[#191D23]/90 text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+                    {{ item.kategori }}
+                  </span>
+                </div>
+                <div class="p-4">
+                  <h4 class="font-bold text-[#191D23] text-sm">{{ item.nama_ekskul }}</h4>
+                  <p class="text-xs text-[#57707A] mt-1 line-clamp-2">
+                    Pengembangan bakat siswa untuk menunjang prestasi akademik dan non-akademik.
+                  </p>
+                  <div class="mt-3 text-[11px] text-[#7B919C] space-y-1">
+                    <div>Pembina: <span class="font-semibold text-slate-700">{{ item.nama_pembina }}</span></div>
+                    <div>Peserta: <span class="font-semibold text-slate-700">{{ item.total_anggota || 0 }} Siswa</span></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-4 pt-0">
+                <button
+                  @click="showAllEkskulModal = false; openQuickRegister(item)"
+                  class="w-full py-2 rounded-xl bg-[#191D23] hover:bg-[#57707A] text-white text-xs font-semibold transition cursor-pointer"
+                >
+                  Daftar Sekarang
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="filteredCatalogEkskul.length === 0" class="py-12 text-center text-xs text-slate-400">
+            Tidak ada ekstrakurikuler yang sesuai dengan pencarian.
+          </div>
+        </div>
+
+        <div class="pt-4 mt-2 border-t border-[#DEDCDC] flex justify-end">
+          <button
+            @click="showAllEkskulModal = false"
+            class="px-5 py-2 rounded-full border border-[#989DAA] text-[#191D23] text-xs font-semibold hover:bg-slate-50 transition cursor-pointer"
+          >
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="showAllDokumentasiModal"
+      class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all"
+    >
+      <div class="bg-white rounded-3xl shadow-2xl border border-[#c8cbd3] w-full max-w-5xl max-h-[90vh] flex flex-col p-6 sm:p-8 animate-in fade-in zoom-in-95 duration-200">
+        <div class="flex items-center justify-between pb-4 border-b border-[#DEDCDC]">
+          <div>
+            <div class="text-xs font-bold uppercase tracking-wider text-[#57707A]">GALERI KEGIATAN</div>
+            <h3 class="text-lg sm:text-xl font-black text-[#191D23]">Dokumentasi Lengkap Siswa SMKN 5 Telkom Banda Aceh</h3>
+          </div>
+          <button
+            @click="showAllDokumentasiModal = false"
+            class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg hover:bg-slate-100 transition cursor-pointer"
+          >
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="py-4">
+          <div class="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+            <button
+              v-for="cat in ['Semua', 'Prestasi', 'Workshop', 'Olahraga', 'Kepemimpinan', 'Keagamaan']"
+              :key="cat"
+              @click="selectedDokumentasiCategory = cat"
+              :class="[
+                'px-3.5 py-1.5 rounded-lg font-bold transition cursor-pointer shrink-0',
+                selectedDokumentasiCategory === cat
+                  ? 'bg-[#191D23] text-white shadow-xs'
+                  : 'bg-slate-100 text-[#57707A] hover:bg-slate-200'
+              ]"
+            >
+              {{ cat }}
+            </button>
+          </div>
+        </div>
+
+        <div class="flex-1 overflow-y-auto pr-1">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div
+              v-for="doc in filteredDokumentasi"
+              :key="doc.id"
+              class="rounded-2xl border border-[#c8cbd3] overflow-hidden bg-white hover:shadow-lg transition group"
+            >
+              <div class="h-44 overflow-hidden relative">
+                <img
+                  :src="doc.gambar"
+                  :alt="doc.judul"
+                  class="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                />
+                <span class="absolute top-2.5 left-2.5 bg-[#191D23]/90 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-md backdrop-blur-xs">
+                  {{ doc.kategori }}
+                </span>
+                <span class="absolute bottom-2.5 right-2.5 bg-black/60 text-white text-[10px] font-medium px-2 py-0.5 rounded-md backdrop-blur-xs">
+                  {{ doc.tanggal }}
+                </span>
+              </div>
+              <div class="p-4 space-y-1.5">
+                <h4 class="font-bold text-[#191D23] text-sm leading-snug">{{ doc.judul }}</h4>
+                <p class="text-xs text-[#57707A] leading-relaxed line-clamp-2">
+                  {{ doc.deskripsi }}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div v-if="filteredDokumentasi.length === 0" class="py-12 text-center text-xs text-slate-400">
+            Tidak ada dokumentasi untuk kategori ini.
+          </div>
+        </div>
+
+        <div class="pt-4 mt-2 border-t border-[#DEDCDC] flex justify-end">
+          <button
+            @click="showAllDokumentasiModal = false"
+            class="px-5 py-2 rounded-full bg-[#191D23] hover:bg-[#57707A] text-white text-xs font-semibold transition cursor-pointer"
+          >
+            Tutup Galeri
+          </button>
+        </div>
       </div>
     </div>
   </div>

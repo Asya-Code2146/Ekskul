@@ -1,11 +1,29 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import api from '../services/api.js';
 
 const prestasiList = ref([]);
 const siswaList = ref([]);
 const ekskulList = ref([]);
 const isLoading = ref(false);
+
+const currentPage = ref(1);
+const perPage = ref(5);
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(prestasiList.value.length / perPage.value));
+});
+
+const paginatedPrestasi = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return prestasiList.value.slice(start, start + perPage.value);
+});
+
+const setPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
 
 const form = ref({
   nisn: '',
@@ -155,11 +173,13 @@ onMounted(() => {
             </thead>
             <tbody class="divide-y divide-slate-100 text-sm">
               <tr
-                v-for="(item, index) in prestasiList"
+                v-for="(item, index) in paginatedPrestasi"
                 :key="item.id_prestasi"
                 class="hover:bg-slate-50 transition"
               >
-                <td class="py-3.5 px-4 text-center text-xs font-semibold text-slate-400">{{ index + 1 }}</td>
+                <td class="py-3.5 px-4 text-center text-xs font-semibold text-slate-400">
+                  {{ (currentPage - 1) * perPage + index + 1 }}
+                </td>
                 <td class="py-3.5 px-4">
                   <div class="font-bold text-[#191D23] text-sm">{{ item.nama_lengkap }}</div>
                   <div class="text-xs text-[#57707A]">{{ item.kelas }} • {{ item.kode_jurusan }}</div>
@@ -191,6 +211,47 @@ onMounted(() => {
               </tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="flex flex-col sm:flex-row items-center justify-between pt-4 text-xs text-[#57707A] gap-3">
+          <div>
+            Menampilkan {{ prestasiList.length > 0 ? (currentPage - 1) * perPage + 1 : 0 }}-{{ Math.min(currentPage * perPage, prestasiList.length) }} dari {{ prestasiList.length }} prestasi
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button
+              @click="setPage(currentPage - 1)"
+              :disabled="currentPage === 1"
+              :class="[
+                'px-2.5 py-1 rounded-md border border-[#c8cbd3] transition',
+                currentPage === 1 ? 'opacity-40 cursor-not-allowed bg-slate-100' : 'bg-white hover:bg-slate-50 cursor-pointer'
+              ]"
+            >
+              &lt;
+            </button>
+            <button
+              v-for="page in totalPages"
+              :key="page"
+              @click="setPage(page)"
+              :class="[
+                'px-3 py-1 rounded-md transition cursor-pointer font-bold',
+                currentPage === page
+                  ? 'bg-[#191D23] text-white shadow-xs'
+                  : 'border border-[#c8cbd3] bg-white text-[#57707A] hover:bg-slate-50'
+              ]"
+            >
+              {{ page }}
+            </button>
+            <button
+              @click="setPage(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              :class="[
+                'px-2.5 py-1 rounded-md border border-[#c8cbd3] transition',
+                currentPage === totalPages ? 'opacity-40 cursor-not-allowed bg-slate-100' : 'bg-white hover:bg-slate-50 cursor-pointer'
+              ]"
+            >
+              &gt;
+            </button>
+          </div>
         </div>
       </div>
     </div>

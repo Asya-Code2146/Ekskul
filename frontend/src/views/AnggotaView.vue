@@ -95,6 +95,24 @@ const filteredAnggota = computed(() => {
   return list;
 });
 
+const currentPage = ref(1);
+const perPage = ref(5);
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredAnggota.value.length / perPage.value));
+});
+
+const paginatedAnggota = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredAnggota.value.slice(start, start + perPage.value);
+});
+
+const setPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+
 const registerAnggota = async () => {
   try {
     await api.post('/anggota', {
@@ -350,11 +368,13 @@ onMounted(() => {
             </thead>
             <tbody class="divide-y divide-slate-100 text-xs">
               <tr
-                v-for="(item, index) in filteredAnggota"
+                v-for="(item, index) in paginatedAnggota"
                 :key="item.id_anggota"
                 class="hover:bg-slate-50 transition"
               >
-                <td class="py-3.5 px-3 text-center text-slate-400 font-semibold">{{ index + 1 }}</td>
+                <td class="py-3.5 px-3 text-center text-slate-400 font-semibold">
+                  {{ (currentPage - 1) * perPage + index + 1 }}
+                </td>
                 <td class="py-3.5 px-3 font-bold text-[#191D23]">{{ item.nama_lengkap }}</td>
                 <td class="py-3.5 px-3 text-slate-600">{{ item.nisn }}</td>
                 <td class="py-3.5 px-3 text-slate-600">{{ item.kelas }}</td>
@@ -396,14 +416,43 @@ onMounted(() => {
         </div>
 
         <div class="flex flex-col sm:flex-row items-center justify-between pt-4 text-xs text-[#57707A] gap-3">
-          <div>1-{{ filteredAnggota.length }} dari {{ anggotaList.length }} anggota</div>
-          <div class="flex items-center gap-1">
-            <button class="px-2.5 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">&lt;</button>
-            <button class="px-3 py-1 rounded-md bg-[#57707A] text-white font-bold">1</button>
-            <button class="px-3 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">2</button>
-            <button class="px-3 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">3</button>
-            <button class="px-3 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">5</button>
-            <button class="px-2.5 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">&gt;</button>
+          <div>
+            Menampilkan {{ filteredAnggota.length > 0 ? (currentPage - 1) * perPage + 1 : 0 }}-{{ Math.min(currentPage * perPage, filteredAnggota.length) }} dari {{ filteredAnggota.length }} anggota
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button
+              @click="setPage(currentPage - 1)"
+              :disabled="currentPage === 1"
+              :class="[
+                'px-2.5 py-1 rounded-md border border-[#c8cbd3] transition',
+                currentPage === 1 ? 'opacity-40 cursor-not-allowed bg-slate-100' : 'bg-white hover:bg-slate-50 cursor-pointer'
+              ]"
+            >
+              &lt;
+            </button>
+            <button
+              v-for="page in totalPages"
+              :key="page"
+              @click="setPage(page)"
+              :class="[
+                'px-3 py-1 rounded-md transition cursor-pointer font-bold',
+                currentPage === page
+                  ? 'bg-[#191D23] text-white shadow-xs'
+                  : 'border border-[#c8cbd3] bg-white text-[#57707A] hover:bg-slate-50'
+              ]"
+            >
+              {{ page }}
+            </button>
+            <button
+              @click="setPage(currentPage + 1)"
+              :disabled="currentPage === totalPages"
+              :class="[
+                'px-2.5 py-1 rounded-md border border-[#c8cbd3] transition',
+                currentPage === totalPages ? 'opacity-40 cursor-not-allowed bg-slate-100' : 'bg-white hover:bg-slate-50 cursor-pointer'
+              ]"
+            >
+              &gt;
+            </button>
           </div>
         </div>
       </div>

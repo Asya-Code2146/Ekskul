@@ -64,6 +64,24 @@ const filteredEkskul = computed(() => {
   return list;
 });
 
+const currentPage = ref(1);
+const perPage = ref(3);
+
+const totalPages = computed(() => {
+  return Math.max(1, Math.ceil(filteredEkskul.value.length / perPage.value));
+});
+
+const paginatedEkskul = computed(() => {
+  const start = (currentPage.value - 1) * perPage.value;
+  return filteredEkskul.value.slice(start, start + perPage.value);
+});
+
+const setPage = (page) => {
+  if (page >= 1 && page <= totalPages.value) {
+    currentPage.value = page;
+  }
+};
+
 const openCreateModal = () => {
   isEditMode.value = false;
   form.value = {
@@ -190,11 +208,13 @@ onMounted(() => {
           </thead>
           <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
             <tr
-              v-for="(item, index) in filteredEkskul"
+              v-for="(item, index) in paginatedEkskul"
               :key="item.id_ekskul"
               class="hover:bg-slate-50/80 transition"
             >
-              <td class="py-4 px-4 text-center font-semibold text-slate-400">{{ index + 1 }}</td>
+              <td class="py-4 px-4 text-center font-semibold text-slate-400">
+                {{ (currentPage - 1) * perPage + index + 1 }}
+              </td>
               <td class="py-4 px-4 font-bold text-[#191D23]">
                 {{ item.nama_ekskul }}
               </td>
@@ -243,14 +263,46 @@ onMounted(() => {
       </div>
 
       <div class="flex flex-col sm:flex-row items-center justify-between pt-6 text-xs text-[#57707A] gap-4">
-        <div class="flex items-center gap-1">
-          <button class="px-2.5 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">&lt;</button>
-          <button class="px-3 py-1 rounded-md bg-[#191D23] text-white font-bold">1</button>
-          <button class="px-3 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">2</button>
-          <button class="px-3 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">3</button>
-          <button class="px-2.5 py-1 rounded-md border border-[#c8cbd3] bg-white hover:bg-slate-50 cursor-pointer">&gt;</button>
+        <div class="flex items-center gap-1.5">
+          <button
+            @click="setPage(currentPage - 1)"
+            :disabled="currentPage === 1"
+            :class="[
+              'px-2.5 py-1 rounded-md border border-[#c8cbd3] transition',
+              currentPage === 1 ? 'opacity-40 cursor-not-allowed bg-slate-100' : 'bg-white hover:bg-slate-50 cursor-pointer'
+            ]"
+          >
+            &lt;
+          </button>
+          <button
+            v-for="page in totalPages"
+            :key="page"
+            @click="setPage(page)"
+            :class="[
+              'px-3 py-1 rounded-md transition cursor-pointer font-bold',
+              currentPage === page
+                ? 'bg-[#191D23] text-white shadow-xs'
+                : 'border border-[#c8cbd3] bg-white text-[#57707A] hover:bg-slate-50'
+            ]"
+          >
+            {{ page }}
+          </button>
+          <button
+            @click="setPage(currentPage + 1)"
+            :disabled="currentPage === totalPages"
+            :class="[
+              'px-2.5 py-1 rounded-md border border-[#c8cbd3] transition',
+              currentPage === totalPages ? 'opacity-40 cursor-not-allowed bg-slate-100' : 'bg-white hover:bg-slate-50 cursor-pointer'
+            ]"
+          >
+            &gt;
+          </button>
         </div>
-        <div class="text-right">10 per halaman</div>
+        <div class="flex items-center gap-2">
+          <span>Halaman {{ currentPage }} dari {{ totalPages }}</span>
+          <span class="text-slate-300">•</span>
+          <span class="text-slate-500">Total {{ filteredEkskul.length }} data</span>
+        </div>
       </div>
 
       <div class="text-center pt-8 border-t border-slate-100 text-xs text-[#7B919C] mt-6">
