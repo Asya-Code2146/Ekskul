@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../services/api.js';
+import { useToast } from '../services/toast.js';
+
+const { showToast } = useToast();
 
 const prestasiList = ref([]);
 const siswaList = ref([]);
@@ -59,11 +62,11 @@ const loadData = async () => {
 const savePrestasi = async () => {
   try {
     await api.post('/prestasi', form.value);
-    alert('Prestasi siswa berhasil dicatat!');
+    showToast('Prestasi siswa berhasil dicatat!');
     form.value.peringkat = '';
     await loadData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal menyimpan prestasi.');
+    showToast(error.response?.data?.message || 'Gagal menyimpan prestasi.', 'error');
   }
 };
 
@@ -71,10 +74,36 @@ const removePrestasi = async (id, nama, peringkat) => {
   if (!confirm(`Hapus prestasi "${peringkat}" milik ${nama}?`)) return;
   try {
     await api.delete(`/prestasi/${id}`);
+    showToast('Prestasi berhasil dihapus.');
     await loadData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal menghapus prestasi.');
+    showToast(error.response?.data?.message || 'Gagal menghapus prestasi.', 'error');
   }
+};
+
+const exportPrestasiCSV = () => {
+  if (prestasiList.value.length === 0) {
+    showToast('Tidak ada data prestasi untuk diekspor.', 'error');
+    return;
+  }
+  const headers = ['No', 'Nama Siswa', 'NISN', 'Kelas', 'Ekstrakurikuler', 'Prestasi & Juara'];
+  const rows = prestasiList.value.map((item, index) => [
+    index + 1,
+    `"${(item.nama_lengkap || '').replace(/"/g, '""')}"`,
+    `"${item.nisn || ''}"`,
+    `"${item.kelas || ''}"`,
+    `"${item.nama_ekskul || ''}"`,
+    `"${(item.peringkat || '').replace(/"/g, '""')}"`
+  ]);
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `rekap_prestasi_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('Rekap prestasi berhasil diekspor ke CSV!');
 };
 
 onMounted(() => {
@@ -152,9 +181,21 @@ onMounted(() => {
       </div>
 
       <div class="lg:col-span-2 bg-white rounded-3xl border border-[#c8cbd3] shadow-xs overflow-hidden flex flex-col">
-        <div class="p-5 border-b border-slate-100">
-          <h2 class="text-base font-bold text-[#191D23]">Rekapitulasi Prestasi Ekskul</h2>
-          <p class="text-xs text-[#57707A]">Daftar penghargaan yang diraih oleh siswa SMKN 5 Telkom</p>
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-bold text-[#191D23]">Rekapitulasi Prestasi Ekskul</h2>
+            <p class="text-xs text-[#57707A]">Daftar penghargaan yang diraih oleh siswa SMKN 5 Telkom</p>
+          </div>
+          <button
+            @click="exportPrestasiCSV"
+            class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#c8cbd3] bg-white hover:bg-slate-50 text-[#191D23] text-xs font-semibold transition cursor-pointer self-start sm:self-auto"
+            title="Export CSV"
+          >
+            <svg class="w-3.5 h-3.5 text-[#57707A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>Export CSV</span>
+          </button>
         </div>
 
         <div v-if="isLoading" class="p-12 text-center text-slate-400 text-sm">

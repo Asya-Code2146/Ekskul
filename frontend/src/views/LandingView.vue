@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../services/api.js';
+import { useToast } from '../services/toast.js';
+
+const { showToast } = useToast();
 
 const emit = defineEmits(['enter-dashboard', 'register-ekskul']);
 
@@ -145,11 +148,11 @@ const openQuickRegister = (ekskul) => {
 const submitQuickRegister = async () => {
   try {
     await api.post('/anggota', regForm.value);
-    alert('Pendaftaran berhasil! Selamat bergabung di ' + selectedEkskulForReg.value.nama_ekskul);
+    showToast('Pendaftaran berhasil! Selamat bergabung di ' + selectedEkskulForReg.value.nama_ekskul);
     quickRegisterModal.value = false;
     await loadLandingData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal mendaftar.');
+    showToast(error.response?.data?.message || 'Gagal mendaftar.', 'error');
   }
 };
 

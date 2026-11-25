@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../services/api.js';
+import { useToast } from '../services/toast.js';
+
+const { showToast } = useToast();
 
 const ekskulList = ref([]);
 const pembinaList = ref([]);
@@ -118,13 +121,15 @@ const saveEkskul = async () => {
 
     if (isEditMode.value) {
       await api.put(`/ekskul/${form.value.id_ekskul}`, payload);
+      showToast('Ekstrakurikuler berhasil diperbarui!');
     } else {
       await api.post('/ekskul', payload);
+      showToast('Ekstrakurikuler baru berhasil ditambahkan!');
     }
     closeModal();
     await fetchInitialData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.');
+    showToast(error.response?.data?.message || 'Terjadi kesalahan saat menyimpan data.', 'error');
   }
 };
 
@@ -134,10 +139,37 @@ const removeEkskul = async (id, nama) => {
 
   try {
     await api.delete(`/ekskul/${id}`);
+    showToast('Ekstrakurikuler berhasil dihapus.');
     await fetchInitialData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal menghapus data.');
+    showToast(error.response?.data?.message || 'Gagal menghapus data.', 'error');
   }
+};
+
+const exportEkskulCSV = () => {
+  if (filteredEkskul.value.length === 0) {
+    showToast('Tidak ada data ekstrakurikuler untuk diekspor.', 'error');
+    return;
+  }
+  const headers = ['No', 'Nama Ekstrakurikuler', 'Kategori', 'Pembina', 'Hari', 'Jam', 'Lokasi'];
+  const rows = filteredEkskul.value.map((item, index) => [
+    index + 1,
+    `"${(item.nama_ekskul || '').replace(/"/g, '""')}"`,
+    `"${item.kategori || ''}"`,
+    `"${(item.nama_pembina || '').replace(/"/g, '""')}"`,
+    `"${scheduleData[item.id_ekskul]?.hari || 'Senin'}"`,
+    `"${scheduleData[item.id_ekskul]?.jam || '15:30 - 17:30'}"`,
+    `"${scheduleData[item.id_ekskul]?.lokasi || 'Lab Komputer'}"`
+  ]);
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `daftar_ekstrakurikuler_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('Daftar ekstrakurikuler berhasil diekspor ke CSV!');
 };
 
 onMounted(() => {
@@ -149,16 +181,31 @@ onMounted(() => {
   <div class="space-y-6">
     <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#c8cbd3] shadow-xs">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-6 gap-4">
-        <h2 class="text-xl sm:text-2xl font-black text-[#191D23]">Daftar Ekstrakurikuler</h2>
-        <button
-          @click="openCreateModal"
-          class="inline-flex items-center justify-center gap-2 bg-[#191D23] hover:bg-[#57707A] text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 cursor-pointer shrink-0"
-        >
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-          </svg>
-          <span>Tambah Ekstrakurikuler</span>
-        </button>
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-[#191D23]">Daftar Ekstrakurikuler</h2>
+          <p class="text-xs text-[#57707A] mt-0.5">Kelola data ekstrakurikuler, pembina, dan jadwal</p>
+        </div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <button
+            @click="exportEkskulCSV"
+            class="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl border border-[#c8cbd3] bg-white hover:bg-slate-50 text-[#191D23] font-semibold text-xs sm:text-sm transition cursor-pointer"
+            title="Export CSV"
+          >
+            <svg class="w-4 h-4 text-[#57707A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <span>Export CSV</span>
+          </button>
+          <button
+            @click="openCreateModal"
+            class="inline-flex items-center justify-center gap-2 bg-[#191D23] hover:bg-[#57707A] text-white font-semibold px-5 py-2.5 rounded-xl text-xs sm:text-sm transition shadow-md active:scale-95 cursor-pointer shrink-0"
+          >
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Tambah Ekstrakurikuler</span>
+          </button>
+        </div>
       </div>
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">

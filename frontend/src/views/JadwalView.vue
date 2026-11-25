@@ -1,12 +1,16 @@
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import api from '../services/api.js';
+import { useToast } from '../services/toast.js';
+
+const { showToast } = useToast();
 
 const jadwalList = ref([]);
 const presensiList = ref([]);
 const ekskulList = ref([]);
 const anggotaList = ref([]);
 const isLoading = ref(false);
+const presensiFilter = ref('');
 
 const activeSubTab = ref('jadwal');
 
@@ -55,11 +59,11 @@ const loadData = async () => {
 const saveJadwal = async () => {
   try {
     await api.post('/jadwal', formJadwal.value);
-    alert('Jadwal kegiatan berhasil ditambahkan!');
+    showToast('Jadwal kegiatan berhasil ditambahkan!');
     formJadwal.value.agenda = '';
     await loadData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal menambahkan jadwal.');
+    showToast(error.response?.data?.message || 'Gagal menambahkan jadwal.', 'error');
   }
 };
 
@@ -67,20 +71,68 @@ const removeJadwal = async (id, agenda) => {
   if (!confirm(`Hapus jadwal kegiatan "${agenda}"?`)) return;
   try {
     await api.delete(`/jadwal/${id}`);
+    showToast('Jadwal kegiatan berhasil dihapus.');
     await loadData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal menghapus jadwal.');
+    showToast(error.response?.data?.message || 'Gagal menghapus jadwal.', 'error');
   }
 };
 
 const savePresensi = async () => {
   try {
     await api.post('/presensi', formPresensi.value);
-    alert('Catatan presensi berhasil disimpan!');
+    showToast('Catatan presensi berhasil disimpan!');
     await loadData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal menyimpan presensi.');
+    showToast(error.response?.data?.message || 'Gagal menyimpan presensi.', 'error');
   }
+};
+
+const filteredPresensi = computed(() => {
+  if (!presensiFilter.value) return presensiList.value;
+  return presensiList.value.filter((item) => item.status_kehadiran === presensiFilter.value);
+});
+
+const getStatusBadgeClass = (status) => {
+  switch (status) {
+    case 'Hadir':
+      return 'bg-emerald-600 text-white';
+    case 'Izin':
+      return 'bg-amber-500 text-white';
+    case 'Sakit':
+      return 'bg-sky-600 text-white';
+    case 'Alpa':
+      return 'bg-rose-600 text-white';
+    default:
+      return 'bg-[#57707A] text-white';
+  }
+};
+
+const exportPresensiCSV = () => {
+  if (filteredPresensi.value.length === 0) {
+    showToast('Tidak ada data presensi untuk diekspor.', 'error');
+    return;
+  }
+  const headers = ['No', 'Nama Siswa', 'NISN', 'Kelas', 'Ekstrakurikuler', 'Agenda', 'Tanggal', 'Status Kehadiran'];
+  const rows = filteredPresensi.value.map((item, index) => [
+    index + 1,
+    `"${(item.nama_lengkap || '').replace(/"/g, '""')}"`,
+    `"${item.nisn || ''}"`,
+    `"${item.kelas || ''}"`,
+    `"${item.nama_ekskul || ''}"`,
+    `"${(item.agenda || '').replace(/"/g, '""')}"`,
+    `"${item.tanggal || ''}"`,
+    `"${item.status_kehadiran || ''}"`
+  ]);
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `rekap_presensi_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('Rekap presensi berhasil diekspor ke CSV!');
 };
 
 onMounted(() => {
@@ -273,9 +325,35 @@ onMounted(() => {
       </div>
 
       <div class="lg:col-span-2 bg-white rounded-3xl border border-[#c8cbd3] shadow-xs overflow-hidden flex flex-col">
-        <div class="p-5 border-b border-slate-100">
-          <h2 class="text-base font-bold text-[#191D23]">Rekap Presensi Kegiatan</h2>
-          <p class="text-xs text-[#57707A]">Log kehadiran anggota dalam sesi kegiatan</p>
+        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-base font-bold text-[#191D23]">Rekap Presensi Kegiatan</h2>
+            <p class="text-xs text-[#57707A]">Log kehadiran anggota dalam sesi kegiatan</p>
+          </div>
+
+          <div class="flex items-center gap-2 flex-wrap">
+            <select
+              v-model="presensiFilter"
+              class="px-3 py-1.5 rounded-xl border border-[#c8cbd3] text-xs bg-white text-[#191D23] focus:outline-none focus:ring-2 focus:ring-[#57707A]"
+            >
+              <option value="">Semua Status</option>
+              <option value="Hadir">Hadir</option>
+              <option value="Izin">Izin</option>
+              <option value="Sakit">Sakit</option>
+              <option value="Alpa">Alpa</option>
+            </select>
+
+            <button
+              @click="exportPresensiCSV"
+              class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-[#c8cbd3] bg-white hover:bg-slate-50 text-[#191D23] text-xs font-semibold transition cursor-pointer"
+              title="Export CSV"
+            >
+              <svg class="w-3.5 h-3.5 text-[#57707A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+              </svg>
+              <span>Export CSV</span>
+            </button>
+          </div>
         </div>
 
         <div v-if="isLoading" class="p-12 text-center text-slate-400 text-sm">
@@ -294,7 +372,7 @@ onMounted(() => {
             </thead>
             <tbody class="divide-y divide-slate-100 text-sm">
               <tr
-                v-for="(item, index) in presensiList"
+                v-for="(item, index) in filteredPresensi"
                 :key="item.id_presensi"
                 class="hover:bg-slate-50 transition"
               >
@@ -311,12 +389,17 @@ onMounted(() => {
                   <div class="text-[11px] text-[#57707A]">{{ item.tanggal }}</div>
                 </td>
                 <td class="py-3.5 px-4 text-center">
-                  <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-[#57707A] text-white">
+                  <span
+                    :class="[
+                      'inline-block px-3 py-1 rounded-full text-xs font-bold shadow-xs',
+                      getStatusBadgeClass(item.status_kehadiran)
+                    ]"
+                  >
                     {{ item.status_kehadiran }}
                   </span>
                 </td>
               </tr>
-              <tr v-if="presensiList.length === 0">
+              <tr v-if="filteredPresensi.length === 0">
                 <td colspan="5" class="py-12 text-center text-slate-400 text-sm">
                   Belum ada catatan presensi tersimpan.
                 </td>

@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { useToast } from '../services/toast.js';
+
+const { showToast } = useToast();
 
 const activeTab = ref('profil');
-const showSuccessToast = ref(false);
 
 const profilSekolah = ref({
   nama_sekolah: 'SMK Negeri 5 Telkom Banda Aceh',
@@ -30,10 +32,7 @@ const adminAkun = ref({
 });
 
 const saveSettings = () => {
-  showSuccessToast.value = true;
-  setTimeout(() => {
-    showSuccessToast.value = false;
-  }, 3500);
+  showToast('Pengaturan sistem berhasil disimpan!');
 };
 </script>
 

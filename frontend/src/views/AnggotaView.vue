@@ -1,6 +1,9 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import api from '../services/api.js';
+import { useToast } from '../services/toast.js';
+
+const { showToast } = useToast();
 
 const anggotaList = ref([]);
 const siswaList = ref([]);
@@ -9,8 +12,12 @@ const tahunAjaranList = ref([]);
 const jurusanList = ref([]);
 const isLoading = ref(false);
 const searchQuery = ref('');
+const selectedEkskulFilter = ref('');
 
 const showEditModal = ref(false);
+const showKtaModal = ref(false);
+const selectedKtaAnggota = ref(null);
+const showPrintModal = ref(false);
 const editForm = ref({
   id_anggota: null,
   nama_lengkap: '',
@@ -83,6 +90,9 @@ const onSelectSiswa = (nisn) => {
 
 const filteredAnggota = computed(() => {
   let list = [...anggotaList.value];
+  if (selectedEkskulFilter.value !== '') {
+    list = list.filter((item) => String(item.id_ekskul) === String(selectedEkskulFilter.value));
+  }
   if (searchQuery.value.trim() !== '') {
     const q = searchQuery.value.toLowerCase().trim();
     list = list.filter((item) =>
@@ -121,10 +131,10 @@ const registerAnggota = async () => {
       id_tahun_ajaran: form.value.id_tahun_ajaran || (tahunAjaranList.value[0]?.id_tahun_ajaran),
       jabatan: form.value.jabatan
     });
-    alert('Pendaftaran anggota berhasil disimpan!');
+    showToast('Pendaftaran anggota berhasil disimpan!');
     await loadAllData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal mendaftarkan anggota.');
+    showToast(error.response?.data?.message || 'Gagal mendaftarkan anggota.', 'error');
   }
 };
 
@@ -161,11 +171,11 @@ const saveEditAnggota = async () => {
       id_tahun_ajaran: editForm.value.id_tahun_ajaran,
       jabatan: editForm.value.jabatan
     });
-    alert('Data anggota berhasil diperbarui!');
+    showToast('Data anggota berhasil diperbarui!');
     showEditModal.value = false;
     await loadAllData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal memperbarui data.');
+    showToast(error.response?.data?.message || 'Gagal memperbarui data.', 'error');
   }
 };
 
@@ -173,10 +183,54 @@ const removeAnggota = async (id, nama) => {
   if (!confirm(`Keluarkan "${nama}" dari keanggotaan ekstrakurikuler ini?`)) return;
   try {
     await api.delete(`/anggota/${id}`);
+    showToast('Anggota berhasil dikeluarkan dari ekskul.');
     await loadAllData();
   } catch (error) {
-    alert(error.response?.data?.message || 'Gagal menghapus keanggotaan.');
+    showToast(error.response?.data?.message || 'Gagal menghapus keanggotaan.', 'error');
   }
+};
+
+const openKtaModal = (item) => {
+  selectedKtaAnggota.value = item;
+  showKtaModal.value = true;
+};
+
+const exportAnggotaCSV = () => {
+  if (filteredAnggota.value.length === 0) {
+    showToast('Tidak ada data anggota untuk diekspor.', 'error');
+    return;
+  }
+  const headers = ['No', 'Nama Lengkap', 'NISN', 'Kelas', 'Jurusan', 'Ekstrakurikuler', 'Jabatan'];
+  const rows = filteredAnggota.value.map((item, index) => [
+    index + 1,
+    `"${(item.nama_lengkap || '').replace(/"/g, '""')}"`,
+    `"${item.nisn || ''}"`,
+    `"${item.kelas || ''}"`,
+    `"${item.kode_jurusan || ''}"`,
+    `"${item.nama_ekskul || ''}"`,
+    `"${item.jabatan || 'Anggota'}"`
+  ]);
+  const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `rekap_anggota_ekskul_${new Date().toISOString().split('T')[0]}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  showToast('Laporan data anggota berhasil diekspor ke CSV!');
+};
+
+const openPrintModal = () => {
+  if (filteredAnggota.value.length === 0) {
+    showToast('Tidak ada data anggota untuk dicetak.', 'error');
+    return;
+  }
+  showPrintModal.value = true;
+};
+
+const printReport = () => {
+  window.print();
 };
 
 onMounted(() => {
@@ -317,22 +371,58 @@ onMounted(() => {
       </div>
 
       <div class="lg:col-span-8 bg-white p-4 sm:p-6 rounded-3xl border border-[#c8cbd3] shadow-xs">
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
-          <div class="flex items-center gap-2.5">
-            <div class="w-8 h-8 rounded-xl bg-[#57707A]/15 text-[#57707A] flex items-center justify-center">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
+        <div class="flex flex-col gap-3 pb-4 border-b border-slate-100">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-xl bg-[#57707A]/15 text-[#57707A] flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="text-base font-bold text-[#191D23]">Daftar Anggota</h2>
+                <p class="text-[11px] text-[#57707A]">Kelola keanggotaan dan kartu anggota siswa</p>
+              </div>
             </div>
-            <h2 class="text-base font-bold text-[#191D23]">Daftar Anggota</h2>
+
+            <div class="flex items-center gap-2 flex-wrap">
+              <button
+                @click="openPrintModal"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#c8cbd3] bg-white hover:bg-slate-50 text-[#191D23] text-xs font-semibold transition cursor-pointer"
+                title="Cetak Laporan Resmi"
+              >
+                <svg class="w-3.5 h-3.5 text-[#57707A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                <span>Cetak</span>
+              </button>
+
+              <button
+                @click="exportAnggotaCSV"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border border-[#c8cbd3] bg-white hover:bg-slate-50 text-[#191D23] text-xs font-semibold transition cursor-pointer"
+                title="Export Data ke CSV"
+              >
+                <svg class="w-3.5 h-3.5 text-[#57707A]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                <span>Export</span>
+              </button>
+
+              <button
+                @click="resetForm"
+                class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#57707A] hover:bg-[#191D23] text-white text-xs font-semibold transition cursor-pointer shrink-0"
+              >
+                <span>+ Tambah Anggota</span>
+              </button>
+            </div>
           </div>
 
-          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
-            <div class="relative w-full sm:w-56 md:w-64">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-2">
+            <div class="relative flex-1">
               <input
                 v-model="searchQuery"
                 type="text"
-                placeholder="Cari anggota..."
+                placeholder="Cari nama, NISN, atau kelas..."
                 class="w-full pl-9 pr-3 py-2 rounded-xl border border-[#c8cbd3] text-xs focus:outline-none focus:ring-2 focus:ring-[#57707A] bg-[#f8f9fa]"
               />
               <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -340,12 +430,17 @@ onMounted(() => {
               </svg>
             </div>
 
-            <button
-              @click="resetForm"
-              class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#57707A] hover:bg-[#191D23] text-white text-xs font-semibold transition cursor-pointer shrink-0"
-            >
-              <span>+ Tambah Anggota</span>
-            </button>
+            <div class="w-full sm:w-48 shrink-0">
+              <select
+                v-model="selectedEkskulFilter"
+                class="w-full px-3 py-2 rounded-xl border border-[#c8cbd3] text-xs bg-white text-[#191D23] focus:outline-none focus:ring-2 focus:ring-[#57707A]"
+              >
+                <option value="">Semua Ekskul</option>
+                <option v-for="e in ekskulList" :key="e.id_ekskul" :value="e.id_ekskul">
+                  {{ e.nama_ekskul }}
+                </option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -387,6 +482,15 @@ onMounted(() => {
                 </td>
                 <td class="py-3.5 px-3 text-center">
                   <div class="flex items-center justify-center gap-1.5">
+                    <button
+                      @click="openKtaModal(item)"
+                      class="p-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-600 hover:text-white text-emerald-700 transition cursor-pointer"
+                      title="Lihat / Cetak Kartu Anggota (KTA)"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
+                      </svg>
+                    </button>
                     <button
                       @click="openEditModal(item)"
                       class="p-1.5 rounded-lg bg-slate-100 hover:bg-[#57707A] hover:text-white text-slate-600 transition cursor-pointer"
@@ -569,6 +673,193 @@ onMounted(() => {
             </button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <div
+      v-if="showKtaModal && selectedKtaAnggota"
+      class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-all"
+    >
+      <div class="bg-white rounded-3xl shadow-2xl border border-[#c8cbd3] w-full max-w-md overflow-hidden">
+        <div class="p-4 bg-[#191D23] text-white flex items-center justify-between border-b border-[#57707A]/40">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span class="text-xs font-bold uppercase tracking-wider">Kartu Tanda Anggota (KTA) Digital</span>
+          </div>
+          <button @click="showKtaModal = false" class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div class="p-6">
+          <div class="relative bg-gradient-to-br from-[#191D23] via-[#222834] to-[#35464f] rounded-2xl p-5 text-white shadow-xl border border-slate-700/60 overflow-hidden">
+            <div class="absolute -right-8 -bottom-8 w-36 h-36 bg-[#57707A]/20 rounded-full blur-2xl pointer-events-none"></div>
+
+            <div class="flex items-center justify-between border-b border-white/15 pb-3">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-white/10 flex items-center justify-center text-white">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="text-[10px] font-bold tracking-widest text-[#C5BAC4] uppercase">SMKN 5 TELKOM BANDA ACEH</div>
+                  <div class="text-xs font-black tracking-wide text-white">KARTU ANGGOTA EKSTRAKURIKULER</div>
+                </div>
+              </div>
+              <span class="text-[9px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">AKTIF</span>
+            </div>
+
+            <div class="flex items-start gap-4 mt-4">
+              <div class="w-16 h-20 rounded-xl bg-white/10 border border-white/20 flex flex-col items-center justify-center shrink-0">
+                <svg class="w-8 h-8 text-[#C5BAC4]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span class="text-[8px] text-[#C5BAC4] mt-1 font-semibold">FOTO</span>
+              </div>
+
+              <div class="flex-1 min-w-0 space-y-1 text-xs">
+                <div>
+                  <div class="text-[9px] text-[#C5BAC4] uppercase font-semibold">Nama Anggota</div>
+                  <div class="font-bold text-sm text-white truncate">{{ selectedKtaAnggota.nama_lengkap }}</div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[11px]">
+                  <div>
+                    <div class="text-[9px] text-[#C5BAC4] uppercase font-semibold">NISN</div>
+                    <div class="font-semibold text-white">{{ selectedKtaAnggota.nisn }}</div>
+                  </div>
+                  <div>
+                    <div class="text-[9px] text-[#C5BAC4] uppercase font-semibold">Kelas</div>
+                    <div class="font-semibold text-white">{{ selectedKtaAnggota.kelas }}</div>
+                  </div>
+                </div>
+                <div>
+                  <div class="text-[9px] text-[#C5BAC4] uppercase font-semibold">Ekstrakurikuler</div>
+                  <div class="font-bold text-emerald-300 text-xs">{{ selectedKtaAnggota.nama_ekskul }}</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between border-t border-white/15 pt-3 mt-4 text-[9px] text-[#C5BAC4]">
+              <div>
+                <span>Jabatan: </span>
+                <span class="font-bold text-white">{{ selectedKtaAnggota.jabatan || 'Anggota' }}</span>
+              </div>
+              <div class="font-mono">ID: EK-{{ selectedKtaAnggota.nisn?.slice(-4) || '2026' }}</div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end gap-2 mt-5">
+            <button
+              @click="showKtaModal = false"
+              class="px-4 py-2 rounded-xl border border-[#c8cbd3] text-[#191D23] font-semibold text-xs hover:bg-slate-50 transition cursor-pointer"
+            >
+              Tutup
+            </button>
+            <button
+              @click="openPrintModal"
+              class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#191D23] hover:bg-[#57707A] text-white font-semibold text-xs transition cursor-pointer"
+            >
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              <span>Cetak Laporan</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      v-if="showPrintModal"
+      class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto"
+    >
+      <div class="bg-white rounded-3xl shadow-2xl border border-[#c8cbd3] w-full max-w-3xl max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-200">
+          <div class="flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span class="text-xs font-bold text-[#191D23] uppercase">Pratinjau Dokumen Resmi</span>
+          </div>
+          <button @click="showPrintModal = false" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg cursor-pointer">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+
+        <div id="print-area" class="mt-6 p-6 sm:p-8 border border-slate-300 rounded-xl bg-white text-slate-800 text-xs">
+          <div class="text-center border-b-2 border-slate-800 pb-3 mb-4">
+            <div class="text-xs font-bold tracking-widest text-slate-600 uppercase">PEMERINTAH ACEH • DINAS PENDIDIKAN</div>
+            <div class="text-base sm:text-lg font-black text-slate-900 tracking-wide">SMK NEGERI 5 TELKOM BANDA ACEH</div>
+            <div class="text-[11px] text-slate-600 mt-0.5">Jl. Stadion H. Dimurthala No. 1, Lampineung, Banda Aceh 23126</div>
+            <div class="text-[10px] text-slate-500">Email: smkn5telkombandaaceh@gmail.com | Website: smkn5telkom.sch.id</div>
+          </div>
+
+          <div class="text-center my-4">
+            <div class="text-sm font-bold uppercase underline tracking-wider text-slate-900">REKAPITULASI DATA ANGGOTA EKSTRAKURIKULER</div>
+            <div class="text-[11px] text-slate-600 mt-1">Tahun Ajaran 2026/2027 • Status: Terverifikasi</div>
+          </div>
+
+          <table class="w-full text-left border-collapse border border-slate-300 my-4 text-[11px]">
+            <thead>
+              <tr class="bg-slate-100 border-b border-slate-300 text-slate-700 font-bold uppercase">
+                <th class="py-2 px-2 border-r border-slate-300 text-center w-8">No</th>
+                <th class="py-2 px-2 border-r border-slate-300">Nama Lengkap</th>
+                <th class="py-2 px-2 border-r border-slate-300">NISN</th>
+                <th class="py-2 px-2 border-r border-slate-300">Kelas</th>
+                <th class="py-2 px-2 border-r border-slate-300">Ekstrakurikuler</th>
+                <th class="py-2 px-2 text-center">Jabatan</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(item, idx) in filteredAnggota" :key="item.id_anggota" class="border-b border-slate-200">
+                <td class="py-1.5 px-2 text-center border-r border-slate-200 font-semibold">{{ idx + 1 }}</td>
+                <td class="py-1.5 px-2 border-r border-slate-200 font-bold">{{ item.nama_lengkap }}</td>
+                <td class="py-1.5 px-2 border-r border-slate-200">{{ item.nisn }}</td>
+                <td class="py-1.5 px-2 border-r border-slate-200">{{ item.kelas }} {{ item.kode_jurusan }}</td>
+                <td class="py-1.5 px-2 border-r border-slate-200 font-medium">{{ item.nama_ekskul }}</td>
+                <td class="py-1.5 px-2 text-center">{{ item.jabatan || 'Anggota' }}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="grid grid-cols-2 gap-6 mt-8 pt-4 text-[11px] text-center">
+            <div>
+              <div>Mengetahui,</div>
+              <div class="font-bold text-slate-900 mt-0.5">Kepala SMK Negeri 5 Telkom</div>
+              <div class="h-14"></div>
+              <div class="font-bold underline text-slate-900">Drs. Dahlia, M.Pd.</div>
+              <div class="text-[10px] text-slate-500">NIP. 19680512 199403 1 004</div>
+            </div>
+            <div>
+              <div>Banda Aceh, 25 November 2026</div>
+              <div class="font-bold text-slate-900 mt-0.5">Koordinator Ekstrakurikuler</div>
+              <div class="h-14"></div>
+              <div class="font-bold underline text-slate-900">Fajar Siddiq, S.Kom., M.T.</div>
+              <div class="text-[10px] text-slate-500">NIP. 19850921 201001 1 012</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-2.5 mt-5">
+          <button
+            @click="showPrintModal = false"
+            class="px-4 py-2 rounded-xl border border-[#c8cbd3] text-[#191D23] font-semibold text-xs hover:bg-slate-50 transition cursor-pointer"
+          >
+            Tutup
+          </button>
+          <button
+            @click="printReport"
+            class="inline-flex items-center gap-1.5 px-5 py-2 rounded-xl bg-[#191D23] hover:bg-[#57707A] text-white font-semibold text-xs transition cursor-pointer"
+          >
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            <span>Cetak Dokumen Sekarang</span>
+          </button>
+        </div>
       </div>
     </div>
   </div>

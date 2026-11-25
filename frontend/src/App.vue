@@ -9,6 +9,9 @@ import AnggotaView from './views/AnggotaView.vue';
 import PrestasiView from './views/PrestasiView.vue';
 import JadwalView from './views/JadwalView.vue';
 import PengaturanView from './views/PengaturanView.vue';
+import { useToast } from './services/toast.js';
+
+const { toastState, closeToast } = useToast();
 
 const currentMode = ref('landing');
 const activeDashboardTab = ref('dashboard');
@@ -68,5 +71,28 @@ const handleTabChange = (tab) => {
         </main>
       </div>
     </div>
+
+    <transition
+      enter-active-class="transform ease-out duration-300 transition"
+      enter-from-class="translate-y-4 opacity-0 sm:translate-y-0 sm:translate-x-4"
+      enter-to-class="translate-y-0 opacity-100 sm:translate-x-0"
+      leave-active-class="transition ease-in duration-200"
+      leave-from-class="opacity-100"
+      leave-to-class="opacity-0"
+    >
+      <div
+        v-if="toastState.show"
+        class="fixed bottom-5 right-5 z-50 flex items-center gap-3 px-4 py-3 rounded-2xl shadow-2xl border text-xs sm:text-sm font-semibold max-w-sm backdrop-blur-md"
+        :class="toastState.type === 'error' ? 'bg-[#191D23] text-rose-300 border-rose-500/50' : 'bg-[#191D23] text-emerald-300 border-emerald-500/50'"
+      >
+        <span class="w-2.5 h-2.5 rounded-full shrink-0" :class="toastState.type === 'error' ? 'bg-rose-500' : 'bg-emerald-400'"></span>
+        <span class="flex-1 text-white">{{ toastState.message }}</span>
+        <button @click="closeToast" class="text-slate-400 hover:text-white p-1 rounded-lg cursor-pointer">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </transition>
   </div>
 </template>
