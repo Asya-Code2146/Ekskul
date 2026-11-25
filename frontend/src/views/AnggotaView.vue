@@ -187,7 +187,7 @@ onMounted(() => {
 <template>
   <div class="space-y-6">
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      <div class="lg:col-span-4 bg-white p-6 rounded-3xl border border-[#c8cbd3] shadow-xs">
+      <div class="lg:col-span-4 bg-white p-4 sm:p-6 rounded-3xl border border-[#c8cbd3] shadow-xs">
         <div class="flex items-center gap-2.5 pb-4 border-b border-slate-100">
           <div class="w-8 h-8 rounded-xl bg-[#57707A]/15 text-[#57707A] flex items-center justify-center">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -316,7 +316,7 @@ onMounted(() => {
         </form>
       </div>
 
-      <div class="lg:col-span-8 bg-white p-6 rounded-3xl border border-[#c8cbd3] shadow-xs">
+      <div class="lg:col-span-8 bg-white p-4 sm:p-6 rounded-3xl border border-[#c8cbd3] shadow-xs">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div class="flex items-center gap-2.5">
             <div class="w-8 h-8 rounded-xl bg-[#57707A]/15 text-[#57707A] flex items-center justify-center">
@@ -327,13 +327,13 @@ onMounted(() => {
             <h2 class="text-base font-bold text-[#191D23]">Daftar Anggota</h2>
           </div>
 
-          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-            <div class="relative flex-1 min-w-0">
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 w-full sm:w-auto">
+            <div class="relative w-full sm:w-56 md:w-64">
               <input
                 v-model="searchQuery"
                 type="text"
                 placeholder="Cari anggota..."
-                class="pl-9 pr-3 py-2 rounded-xl border border-[#c8cbd3] text-xs focus:outline-none focus:ring-2 focus:ring-[#57707A] bg-[#f8f9fa] w-full"
+                class="w-full pl-9 pr-3 py-2 rounded-xl border border-[#c8cbd3] text-xs focus:outline-none focus:ring-2 focus:ring-[#57707A] bg-[#f8f9fa]"
               />
               <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -342,7 +342,7 @@ onMounted(() => {
 
             <button
               @click="resetForm"
-              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#57707A] hover:bg-[#191D23] text-white text-xs font-semibold transition cursor-pointer shrink-0 whitespace-nowrap"
+              class="inline-flex items-center justify-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#57707A] hover:bg-[#191D23] text-white text-xs font-semibold transition cursor-pointer shrink-0"
             >
               <span>+ Tambah Anggota</span>
             </button>
