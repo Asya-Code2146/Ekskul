@@ -29,6 +29,64 @@ const catalogSearch = ref('');
 const showAllDokumentasiModal = ref(false);
 const selectedDokumentasiCategory = ref('Semua');
 
+const getEkskulImage = (item) => {
+  if (!item) return '/images/gedung-smkn5.jpg';
+  const name = (item.nama_ekskul || '').toLowerCase();
+  const cat = (item.kategori || '').toLowerCase();
+
+  if (name.includes('robot') || name.includes('iot')) {
+    return 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('futsal') || name.includes('sepak') || name.includes('bola')) {
+    return 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('paskibra') || name.includes('paskib')) {
+    return 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('coding') || name.includes('web') || name.includes('program') || name.includes('rpl')) {
+    return 'https://images.unsplash.com/photo-1555066931-4365d14bab8c?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('basket')) {
+    return 'https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('pramuka')) {
+    return 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('rohis') || name.includes('islam') || name.includes('agama')) {
+    return 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('desain') || name.includes('dkv') || name.includes('foto') || name.includes('seni')) {
+    return 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('pmr') || name.includes('palang merah') || name.includes('sehat')) {
+    return 'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('badminton') || name.includes('tangkis')) {
+    return 'https://images.unsplash.com/photo-1626224583764-f87db24ac4ea?auto=format&fit=crop&w=800&q=80';
+  }
+  if (name.includes('musik') || name.includes('band')) {
+    return 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=800&q=80';
+  }
+
+  if (cat.includes('tekno')) {
+    return 'https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80';
+  }
+  if (cat.includes('olahraga')) {
+    return 'https://images.unsplash.com/photo-1461896836934-ffe607ba8211?auto=format&fit=crop&w=800&q=80';
+  }
+  if (cat.includes('seni')) {
+    return 'https://images.unsplash.com/photo-1460661419200-fd4358377982?auto=format&fit=crop&w=800&q=80';
+  }
+  if (cat.includes('pimpin')) {
+    return 'https://images.unsplash.com/photo-1526976668912-1a811878dd37?auto=format&fit=crop&w=800&q=80';
+  }
+  if (cat.includes('agama')) {
+    return 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=800&q=80';
+  }
+
+  return '/images/gedung-smkn5.jpg';
+};
+
 const dokumentasiList = ref([
   {
     id: 1,
@@ -36,7 +94,7 @@ const dokumentasiList = ref([
     kategori: 'Prestasi',
     tanggal: '12 Oktober 2026',
     deskripsi: 'Siswa SMKN 5 Telkom meraih medali emas pada ajang Lomba Kompetensi Siswa (LKS) bidang Web Technologies.',
-    gambar: '/images/gedung-smkn5.jpg'
+    gambar: 'https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 2,
@@ -44,7 +102,7 @@ const dokumentasiList = ref([
     kategori: 'Workshop',
     tanggal: '21 November 2026',
     deskripsi: 'Pelatihan intensif rekayasa perangkat lunak dan pemrograman modern untuk anggota Telkom Coding Club.',
-    gambar: '/images/gedung-smkn5.jpg'
+    gambar: 'https://images.unsplash.com/photo-1517245386807-bb43f82c33c4?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 3,
@@ -52,7 +110,7 @@ const dokumentasiList = ref([
     kategori: 'Olahraga',
     tanggal: '15 November 2026',
     deskripsi: 'Persiapan kejuaraan futsal antar pelajar tingkat kota di Lapangan Futsal Kick-Off Lampineung.',
-    gambar: '/images/gedung-smkn5.jpg'
+    gambar: 'https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 4,
@@ -60,7 +118,7 @@ const dokumentasiList = ref([
     kategori: 'Kepemimpinan',
     tanggal: '17 Agustus 2026',
     deskripsi: 'Kedisiplinan dan kekompakan pleton Paskibraka SMKN 5 Telkom saat upacara peringatan kemerdekaan.',
-    gambar: '/images/gedung-smkn5.jpg'
+    gambar: 'https://images.unsplash.com/photo-1541872703-74c5e44368f9?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 5,
@@ -68,7 +126,7 @@ const dokumentasiList = ref([
     kategori: 'Prestasi',
     tanggal: '28 Oktober 2026',
     deskripsi: 'Inovasi robot pemilah sampah otomatis karya siswa Lab Robotika & IoT SMKN 5 Telkom.',
-    gambar: '/images/gedung-smkn5.jpg'
+    gambar: 'https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 6,
@@ -76,7 +134,7 @@ const dokumentasiList = ref([
     kategori: 'Workshop',
     tanggal: '05 November 2026',
     deskripsi: 'Mengasah kemampuan penulisan berita, peliputan acara, dan fotografi jurnalistik sekolah.',
-    gambar: '/images/gedung-smkn5.jpg'
+    gambar: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 7,
@@ -84,7 +142,7 @@ const dokumentasiList = ref([
     kategori: 'Keagamaan',
     tanggal: '08 November 2026',
     deskripsi: 'Pembinaan karakter spiritual, akhlak mulia, dan kebersamaan remaja masjid sekolah.',
-    gambar: '/images/gedung-smkn5.jpg'
+    gambar: 'https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=800&q=80'
   },
   {
     id: 8,
@@ -92,7 +150,7 @@ const dokumentasiList = ref([
     kategori: 'Kepemimpinan',
     tanggal: '01 November 2026',
     deskripsi: 'Pengembaraan dan uji kecakapan umum (SKU) anggota pramuka gugus depan SMKN 5 Telkom.',
-    gambar: '/images/gedung-smkn5.jpg'
+    gambar: 'https://images.unsplash.com/photo-1504280390367-361c6d9f38f4?auto=format&fit=crop&w=800&q=80'
   }
 ]);
 
@@ -416,7 +474,7 @@ onMounted(() => {
           <div>
             <div class="h-44 bg-[#57707A] relative overflow-hidden flex items-center justify-center">
               <img
-                src="/images/gedung-smkn5.jpg"
+                :src="getEkskulImage(item)"
                 :alt="item.nama_ekskul"
                 class="w-full h-full object-cover opacity-90 hover:scale-105 transition duration-500"
               />
@@ -498,15 +556,15 @@ onMounted(() => {
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div class="rounded-2xl overflow-hidden bg-white shadow-sm border border-[#c8cbd3] h-48 sm:h-52">
                 <img
-                  src="/images/gedung-smkn5.jpg"
-                  alt="Dokumentasi 1"
+                  src="https://images.unsplash.com/photo-1531482615713-2afd69097998?auto=format&fit=crop&w=800&q=80"
+                  alt="Bootcamp & Coding Siswa SMKN 5"
                   class="w-full h-full object-cover hover:scale-105 transition duration-500"
                 />
               </div>
               <div class="rounded-2xl overflow-hidden bg-white shadow-sm border border-[#c8cbd3] h-48 sm:h-52">
                 <img
-                  src="/images/gedung-smkn5.jpg"
-                  alt="Dokumentasi 2"
+                  src="https://images.unsplash.com/photo-1574629810360-7efbbe195018?auto=format&fit=crop&w=800&q=80"
+                  alt="Kompetisi Futsal Telkom FC"
                   class="w-full h-full object-cover hover:scale-105 transition duration-500"
                 />
               </div>
@@ -514,8 +572,8 @@ onMounted(() => {
 
             <div class="rounded-2xl overflow-hidden bg-white shadow-sm border border-[#c8cbd3] h-48 sm:h-56">
               <img
-                src="/images/gedung-smkn5.jpg"
-                alt="Dokumentasi 3"
+                src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?auto=format&fit=crop&w=1200&q=80"
+                alt="Inovasi Robotika & IoT Lab"
                 class="w-full h-full object-cover hover:scale-105 transition duration-500"
               />
             </div>
@@ -861,7 +919,7 @@ onMounted(() => {
               <div>
                 <div class="h-32 bg-[#57707A] relative overflow-hidden">
                   <img
-                    src="/images/gedung-smkn5.jpg"
+                    :src="getEkskulImage(item)"
                     :alt="item.nama_ekskul"
                     class="w-full h-full object-cover"
                   />
