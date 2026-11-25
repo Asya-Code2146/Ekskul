@@ -327,13 +327,13 @@ onMounted(() => {
             <h2 class="text-base font-bold text-[#191D23]">Daftar Anggota</h2>
           </div>
 
-          <div class="flex items-center gap-3">
-            <div class="relative">
+          <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+            <div class="relative flex-1 min-w-0">
               <input
                 v-model="searchQuery"
                 type="text"
                 placeholder="Cari anggota..."
-                class="pl-9 pr-3 py-2 rounded-xl border border-[#c8cbd3] text-xs focus:outline-none focus:ring-2 focus:ring-[#57707A] bg-[#f8f9fa] w-48 sm:w-60"
+                class="pl-9 pr-3 py-2 rounded-xl border border-[#c8cbd3] text-xs focus:outline-none focus:ring-2 focus:ring-[#57707A] bg-[#f8f9fa] w-full"
               />
               <svg class="w-3.5 h-3.5 text-slate-400 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -342,7 +342,7 @@ onMounted(() => {
 
             <button
               @click="resetForm"
-              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#57707A] hover:bg-[#191D23] text-white text-xs font-semibold transition cursor-pointer shrink-0"
+              class="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[#57707A] hover:bg-[#191D23] text-white text-xs font-semibold transition cursor-pointer shrink-0 whitespace-nowrap"
             >
               <span>+ Tambah Anggota</span>
             </button>
