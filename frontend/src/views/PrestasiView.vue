@@ -180,8 +180,8 @@ onMounted(() => {
         </form>
       </div>
 
-      <div class="lg:col-span-2 bg-white rounded-3xl border border-[#c8cbd3] shadow-xs overflow-hidden flex flex-col">
-        <div class="p-4 sm:p-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-3xl border border-[#c8cbd3] shadow-xs flex flex-col">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-100 gap-3">
           <div>
             <h2 class="text-base font-bold text-[#191D23]">Rekapitulasi Prestasi Ekskul</h2>
             <p class="text-xs text-[#57707A]">Daftar penghargaan yang diraih oleh siswa SMKN 5 Telkom</p>
@@ -201,10 +201,10 @@ onMounted(() => {
         <div v-if="isLoading" class="p-12 text-center text-slate-400 text-sm">
           Memuat rekapitulasi prestasi...
         </div>
-        <div v-else class="overflow-x-auto flex-1">
+        <div v-else class="overflow-x-auto mt-4 rounded-2xl border border-[#c8cbd3]">
           <table class="w-full text-left border-collapse min-w-[550px]">
             <thead>
-              <tr class="bg-[#191D23] text-white text-xs uppercase font-bold tracking-wider">
+              <tr class="bg-[#f8f9fa] border-b border-[#c8cbd3] text-[11px] font-bold text-slate-600 uppercase">
                 <th class="py-3 px-4 w-12 text-center">NO</th>
                 <th class="py-3 px-4">SISWA</th>
                 <th class="py-3 px-4">EKSTRAKURIKULER</th>
@@ -212,7 +212,7 @@ onMounted(() => {
                 <th class="py-3 px-4 text-center w-24">AKSI</th>
               </tr>
             </thead>
-            <tbody class="divide-y divide-slate-100 text-sm">
+            <tbody class="divide-y divide-slate-100 text-xs sm:text-sm">
               <tr
                 v-for="(item, index) in paginatedPrestasi"
                 :key="item.id_prestasi"
@@ -254,7 +254,7 @@ onMounted(() => {
           </table>
         </div>
 
-        <div class="flex flex-col sm:flex-row items-center justify-between pt-4 text-xs text-[#57707A] gap-3">
+        <div class="flex flex-col sm:flex-row items-center justify-between pt-5 mt-auto text-xs text-[#57707A] gap-3">
           <div>
             Menampilkan {{ prestasiList.length > 0 ? (currentPage - 1) * perPage + 1 : 0 }}-{{ Math.min(currentPage * perPage, prestasiList.length) }} dari {{ prestasiList.length }} prestasi
           </div>
